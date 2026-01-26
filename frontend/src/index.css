@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos extras para apariencia moderna */
+:root{
+  --glass-bg: rgba(255,255,255,0.7);
+  --accent: #7c3aed; /* morado */
+  --accent-2: #ff6fb5; /* rosa */
+  --card-radius: 1rem;
+  --shadow-1: 0 6px 20px rgba(16,24,40,0.08);
+}
+
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg,#f8fbff 0%, #fff 100%);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Lumi asistente (corner) */
+.lumi-assistant {
+  width: 84px;
+  height: 84px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: 0 8px 30px rgba(124,58,237,0.18);
+  cursor:pointer;
+  transition: transform .18s ease;
+}
+.lumi-assistant:active{ transform: scale(.96); }
+.lumi-pulse {
+  position: absolute;
+  width: 140%;
+  height: 140%;
+  border-radius: 999px;
+  left: -20%;
+  top: -20%;
+  background: radial-gradient(circle, rgba(255,111,181,0.18), transparent 40%);
+  animation: pulse 2s infinite;
+  pointer-events:none;
+  opacity: .9;
+}
+@keyframes pulse {
+  0% { transform: scale(.95); opacity:.9 }
+  50% { transform: scale(1.08); opacity:.6 }
+  100% { transform: scale(.95); opacity:.9 }
+}
+
+/* Card glass */
+.card-glass {
+  background: rgba(255,255,255,0.9);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-1);
+}
+
+/* botones grandes */
+.btn-main {
+  background: linear-gradient(90deg,var(--accent), var(--accent-2));
+  color: white;
+  padding: .6rem 1rem;
+  border-radius: .75rem;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(124,58,237,0.12);
+}
