@@ -111,6 +111,7 @@ export default function MCUA() {
   const animate = () => {
     if (!running.current) return;
 
+    
     // actualizar omega y theta
     omega.current += alphaRef.current; // incremento perceptible
     if (omega.current > 1.5) omega.current = 1.5;
@@ -128,7 +129,13 @@ export default function MCUA() {
       playBell(freq);
       lastPingTheta.current = theta.current;
       if (navigator.vibrate) navigator.vibrate(Math.min(Math.floor(omega.current * 200), 50));
+    // vibración haptica proporcional a la velocidad angular
+    if (navigator.vibrate) {
+      const duration = Math.min(Math.floor(omega.current * 100), 50); // max 50ms para no molestar
+      navigator.vibrate(duration);
     }
+  }
+
 
     raf.current = requestAnimationFrame(animate);
   };
