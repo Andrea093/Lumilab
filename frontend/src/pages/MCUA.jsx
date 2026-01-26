@@ -51,11 +51,17 @@ export default function MCUA() {
   const startSimulation = () => {
   if (running.current) return;
 
+  
+
   // Activa la simulación
   running.current = true;
   theta.current = 0;
   omega.current = 0;
   lastPingTheta.current = 0;
+
+  // DESBLOQUEO AudioContext para móviles
+if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
+
 
   // VOZ al iniciar la simulación
   speak("Cada beep o sonido indica como la velocidad angular del carro va aumentando");
@@ -131,7 +137,7 @@ export default function MCUA() {
       if (navigator.vibrate) navigator.vibrate(Math.min(Math.floor(omega.current * 200), 50));
     // vibración haptica proporcional a la velocidad angular
     if (navigator.vibrate) {
-      const duration = Math.min(Math.floor(omega.current * 100), 50); // max 50ms para no molestar
+      const duration = Math.min(Math.floor(omega.current * 50), 50); // max 50ms para no molestar
       navigator.vibrate(duration);
     }
   }
