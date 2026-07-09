@@ -1,46 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import Lumi from "../components/Lumi";
-
-/* ================= VOZ ================= */
-const speak = (text) => {
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "es-ES";
-  u.rate = 0.85;
-  u.pitch = 1.35;
-  window.speechSynthesis.speak(u);
-};
-
-const stopSpeak = () => {
-  window.speechSynthesis.cancel();
-};
-
-/* ================= RECONOCIMIENTO DE VOZ ================= */
-const listen = (onResult) => {
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    speak("Este navegador no permite reconocimiento de voz.");
-    return;
-  }
-
-  const rec = new SpeechRecognition();
-  rec.lang = "es-ES";
-  rec.start();
-
-  rec.onresult = (e) => {
-    const text = e.results[0][0].transcript.toLowerCase();
-    onResult(text);
-  };
-
-  rec.onerror = () => {
-    speak("No se pudo reconocer la voz, intenta de nuevo.");
-  };
-};
+import LumiGuide from "../components/LumiGuide";
+import useLumi from "../hooks/useLumi";
+import useModuleProgress from "../hooks/useModuleProgress";
+import { normalizeAnswer, answerMatches } from "../utils/answer";
 
 /* ================= MRU ================= */
 export default function MRU() {
+  const { speak, stopSpeak, listen } = useLumi();
+  const { markStarted, markExerciseResult } = useModuleProgress("mru");
+  const [feedback, setFeedback] = useState("");
+
   /* ---------- SIMULACIÓN ---------- */
   const [velocity, setVelocity] = useState(20);
   const [running, setRunning] = useState(false);
@@ -58,6 +27,7 @@ export default function MRU() {
   const startSimulation = () => {
     if (!running) setRunning(true);
     if (!soundOn) startSound();
+    markStarted();
 
     speak(
       "La simulación ha iniciado. El objeto se mueve en línea recta con velocidad constante. Escucha el sonido: cuanto más agudo, mayor velocidad; cuanto más grave, menor velocidad."
@@ -160,25 +130,12 @@ export default function MRU() {
 
   const [ex, setEx] = useState(0);
 
-  const normalizeAnswer = (text) => {
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "")
-      .replace(/metros|m\/s|m|porsegundo|segundo/g, "")
-      .trim();
-  };
-
   const checkAnswer = (ans) => {
-    const normalized = normalizeAnswer(ans);
-    const corrects = exercises[ex].correct.map((c) => normalizeAnswer(c));
-
-    if (corrects.includes(normalized)) {
-      speak("¡Muy bien! Tu respuesta es correcta.");
-    } else {
-      speak(`No es correcto. ${exercises[ex].explain}`);
-    }
+    const correct = answerMatches(ans, exercises[ex].correct);
+    const message = correct ? "¡Muy bien! Tu respuesta es correcta." : `No es correcto. ${exercises[ex].explain}`;
+    setFeedback(message);
+    markExerciseResult(correct);
+    speak(message);
   };
 
   /* ---------- EXPERIENCIAS ---------- */
@@ -204,41 +161,18 @@ export default function MRU() {
     }
   };
 
-  /* ---------- LUMI - BIENVENIDA Y EXPLICACIÓN ---------- */
-  const lumiSpeakRef = useRef(null);
-
-  const handleLumiWelcome = () => {
-    stopSpeak();
-    lumiSpeakRef.current = new SpeechSynthesisUtterance(
-      "Hola, soy Lumi. Este es el módulo de Movimiento Rectilíneo Uniforme (MRU)."
-    );
-    lumiSpeakRef.current.lang = "es-ES";
-    lumiSpeakRef.current.rate = 0.85;
-    lumiSpeakRef.current.pitch = 1.35;
-    window.speechSynthesis.speak(lumiSpeakRef.current);
-  };
-
+  /* ---------- LUMI - EXPLICACIÓN ---------- */
   const handleLumiExplain = () => {
-    stopSpeak();
-    lumiSpeakRef.current = new SpeechSynthesisUtterance(
+    speak(
       "El movimiento rectilíneo uniforme (MRU) es aquel en el que un objeto se desplaza en línea recta con velocidad constante, sin acelerar ni frenar."
     );
-    lumiSpeakRef.current.lang = "es-ES";
-    lumiSpeakRef.current.rate = 0.85;
-    lumiSpeakRef.current.pitch = 1.35;
-    window.speechSynthesis.speak(lumiSpeakRef.current);
   };
 
-  const stopLumi = () => {
-    if (lumiSpeakRef.current) {
-      window.speechSynthesis.cancel();
-      lumiSpeakRef.current = null;
-    }
-  };
+  const stopLumi = stopSpeak;
 
   return (
     <div className="p-6 text-lg">
-      <Lumi onExplain={handleLumiWelcome} onStop={stopLumi} />
+      <LumiGuide text="Hola, soy Lumi. Este es el módulo de Movimiento Rectilíneo Uniforme (MRU)." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* IZQUIERDA */}
@@ -271,24 +205,28 @@ export default function MRU() {
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🚗 Simulación</h2>
 
-            <div className="relative h-28 bg-gray-100 rounded mt-3">
+            <div className="relative h-28 bg-gray-100 rounded mt-3" aria-hidden="true">
               <div
                 ref={carRef}
                 className="absolute left-2 top-10 w-20 h-10 bg-red-500 rounded"
               />
             </div>
+            <p className="sr-only" role="status">
+              {running ? `Simulación en curso a ${velocity} metros por segundo.` : "Simulación detenida."}
+            </p>
 
-            <label className="block mt-4">
+            <label htmlFor="mru-velocity" className="block mt-4">
               Velocidad: {velocity} m/s
-              <input
-                type="range"
-                min="5"
-                max="60"
-                value={velocity}
-                onChange={(e) => setVelocity(+e.target.value)}
-                className="w-full"
-              />
             </label>
+            <input
+              id="mru-velocity"
+              type="range"
+              min="5"
+              max="60"
+              value={velocity}
+              onChange={(e) => setVelocity(+e.target.value)}
+              className="w-full"
+            />
 
             <div className="flex gap-3 mt-3">
               <button
@@ -344,9 +282,16 @@ export default function MRU() {
               </button>
             </div>
 
+            <p aria-live="polite" className="mt-3 font-medium text-purple-700 min-h-[1.5em]">
+              {feedback}
+            </p>
+
             <button
               className="mt-3 bg-gray-200 px-3 py-2 rounded"
-              onClick={() => setEx((ex + 1) % exercises.length)}
+              onClick={() => {
+                setEx((ex + 1) % exercises.length);
+                setFeedback("");
+              }}
             >
               Nuevo ejercicio
             </button>

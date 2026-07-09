@@ -1,5 +1,9 @@
 // src/hooks/useLumi.js
-import { useRef, useEffect } from "react";
+// Punto único de voz (TTS + reconocimiento de voz), sonido ambiental y vibración para toda la app.
+import { useRef, useEffect, useState, useCallback } from "react";
+
+const SpeechRecognitionAPI =
+  typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
 
 export default function useLumi() {
   const audioCtxRef = useRef(null);
@@ -7,6 +11,11 @@ export default function useLumi() {
   const oscBRef = useRef(null);
   const gainRef = useRef(null);
   const lfoRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [audioActive, setAudioActive] = useState(false);
 
   // seleccionar voz femenina preferida
   const selectFemaleVoice = () => {
@@ -33,7 +42,7 @@ export default function useLumi() {
     window.speechSynthesis.onvoiceschanged = () => selectFemaleVoice();
   }, []);
 
-  // inicia audio (user gesture required)
+  // inicia audio ambiental (requiere gesto del usuario)
   const startAudio = async () => {
     if (audioCtxRef.current) return;
     const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -72,6 +81,7 @@ export default function useLumi() {
     oscBRef.current = oscB;
     gainRef.current = gain;
     lfoRef.current = lfo;
+    setAudioActive(true);
 
     return true;
   };
@@ -83,12 +93,15 @@ export default function useLumi() {
       oscBRef.current.stop();
       lfoRef.current.stop();
       await audioCtxRef.current.close();
-    } catch (e) {}
+    } catch {
+      // el AudioContext puede ya estar cerrado; no hay nada que limpiar
+    }
     audioCtxRef.current = null;
     oscARef.current = null;
     oscBRef.current = null;
     gainRef.current = null;
     lfoRef.current = null;
+    setAudioActive(false);
   };
 
   const updateSound = (v) => {
@@ -103,8 +116,8 @@ export default function useLumi() {
     gainRef.current.gain.linearRampToValueAtTime(vol, now + 0.12);
   };
 
-  // voz
-  const speak = (text, opts = {}) => {
+  // voz (texto a voz)
+  const speak = useCallback((text, opts = {}) => {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -113,13 +126,55 @@ export default function useLumi() {
     u.pitch = opts.pitch ?? 1;
     const v = selectFemaleVoice();
     if (v) u.voice = v;
+    u.onstart = () => setIsSpeaking(true);
+    u.onend = () => setIsSpeaking(false);
+    u.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(u);
-  };
+  }, []);
+
+  const stopSpeak = useCallback(() => {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  }, []);
+
+  // reconocimiento de voz (voz a texto)
+  const listen = useCallback((onResult, onError) => {
+    if (!SpeechRecognitionAPI) {
+      speak("Este navegador no permite reconocimiento de voz.");
+      onError?.(new Error("SpeechRecognition no disponible"));
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = "es-CO";
+    recognition.continuous = false;
+    recognitionRef.current = recognition;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      onError?.(event);
+    };
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript;
+      onResult(text);
+    };
+
+    recognition.start();
+  }, [speak]);
+
+  const stopListen = useCallback(() => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  }, []);
 
   // haptics
   const vibrate = (pattern) => {
     if (navigator.vibrate) {
-      try { navigator.vibrate(pattern); } catch (e) {}
+      try { navigator.vibrate(pattern); } catch {
+        // la vibración puede no estar permitida en este contexto; se ignora
+      }
     }
   };
 
@@ -128,8 +183,13 @@ export default function useLumi() {
     stopAudio,
     updateSound,
     speak,
+    stopSpeak,
+    listen,
+    stopListen,
     vibrate,
-    audioActive: !!audioCtxRef.current,
+    isSpeaking,
+    isListening,
+    audioActive,
     selectFemaleVoice,
   };
 }

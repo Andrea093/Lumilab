@@ -1,14 +1,24 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoLumilab from "../assets/logo-lumilab.png";
+import { useAuth } from "../context/AuthContext";
+import AccessibilityPanel from "./AccessibilityPanel";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [simOpen, setSimOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const closeAll = () => {
     setMenuOpen(false);
     setSimOpen(false);
+  };
+
+  const handleLogout = () => {
+    closeAll();
+    logout();
+    navigate("/");
   };
 
   return (
@@ -42,20 +52,25 @@ export default function Navbar() {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-2xl"
+          aria-expanded={menuOpen}
+          aria-controls="navbar-mobile-menu"
+          aria-label={menuOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
         >
-          ☰
+          <span aria-hidden="true">☰</span>
         </button>
 
         {/* NAV DESKTOP */}
-        <nav className="hidden md:flex items-center gap-6 text-gray-700 font-medium">
+        <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-6 text-gray-700 font-medium">
 
           {/* SIMULADORES */}
           <div className="relative">
             <button
               onClick={() => setSimOpen(!simOpen)}
+              aria-expanded={simOpen}
+              aria-haspopup="true"
               className="px-4 py-2 rounded-lg hover:bg-gray-100 flex items-center gap-1"
             >
-              Simuladores ▾
+              Simuladores <span aria-hidden="true">▾</span>
             </button>
 
             {simOpen && (
@@ -72,18 +87,47 @@ export default function Navbar() {
           <Link to="/nosotros" className="px-4 py-2 rounded-lg hover:bg-gray-100">
             Nosotros
           </Link>
+
+          <AccessibilityPanel />
+
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-500">
+                {user?.full_name}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+              >
+                Salir
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link to="/" className="px-4 py-2 rounded-lg hover:bg-gray-100">
+                Iniciar sesión
+              </Link>
+              <Link
+                to="/registro"
+                className="px-4 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700"
+              >
+                Inscribirse
+              </Link>
+            </div>
+          )}
         </nav>
       </div>
 
       {/* NAV MOBILE */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t px-4 py-4 space-y-3">
-          
+        <div id="navbar-mobile-menu" className="md:hidden bg-white border-t px-4 py-4 space-y-3">
+
           <button
             onClick={() => setSimOpen(!simOpen)}
+            aria-expanded={simOpen}
             className="w-full text-left font-semibold text-gray-800"
           >
-            Simuladores ▾
+            Simuladores <span aria-hidden="true">▾</span>
           </button>
 
           {simOpen && (
@@ -99,6 +143,23 @@ export default function Navbar() {
           <Link onClick={closeAll} to="/nosotros" className="block">
             Nosotros
           </Link>
+
+          <AccessibilityPanel />
+
+          {isAuthenticated ? (
+            <button onClick={handleLogout} className="block w-full text-left font-semibold text-gray-800">
+              Salir ({user?.full_name})
+            </button>
+          ) : (
+            <>
+              <Link onClick={closeAll} to="/" className="block">
+                Iniciar sesión
+              </Link>
+              <Link onClick={closeAll} to="/registro" className="block font-semibold text-violet-700">
+                Inscribirse
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
@@ -121,6 +182,17 @@ function SimLinks({ close }) {
       <Link onClick={close} to="/mcua" className="block hover:text-violet-600">
         MCUA
       </Link>
+      <Link onClick={close} to="/caida-libre" className="block hover:text-violet-600">
+        Caída libre
+      </Link>
+      <Link onClick={close} to="/ondas" className="block hover:text-violet-600">
+        Ondas y sonido
+      </Link>
+      <div className="border-t mt-2 pt-2">
+        <Link onClick={close} to="/dashboard" className="block text-sm text-gray-500 hover:text-violet-600">
+          Ver todos los temas (6° a 11°) →
+        </Link>
+      </div>
     </>
   );
 }

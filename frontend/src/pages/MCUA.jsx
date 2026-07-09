@@ -1,38 +1,15 @@
 import { useRef, useState } from "react";
-import Lumi from "../components/Lumi";
-
-const handleLumiWelcome = () => {
-  stopSpeak(); // Detener cualquier voz en curso
-  speak("Hola, soy Lumi. Te acompaño paso a paso para comprender el Movimiento Circular Uniformemente Acelerado, MCUA.");
-};
-
-/* ================= VOZ ================= */
-const speak = (text) => {
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "es-ES";
-  u.rate = 0.85;
-  u.pitch = 1.3;
-  window.speechSynthesis.speak(u);
-};
-const stopSpeak = () => window.speechSynthesis.cancel();
-
-/* ================= RECONOCIMIENTO DE VOZ ================= */
-const listen = (onResult) => {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    speak("Este navegador no permite reconocimiento de voz.");
-    return;
-  }
-  const rec = new SR();
-  rec.lang = "es-ES";
-  rec.start();
-  rec.onresult = (e) => onResult(e.results[0][0].transcript.toLowerCase());
-  rec.onerror = () => speak("No se pudo reconocer la voz, intenta de nuevo.");
-};
+import LumiGuide from "../components/LumiGuide";
+import useLumi from "../hooks/useLumi";
+import useModuleProgress from "../hooks/useModuleProgress";
+import { normalizeAnswer } from "../utils/answer";
 
 /* ================= MCUA PEDAGÓGICO ================= */
 export default function MCUA() {
+  const { speak, stopSpeak, listen } = useLumi();
+  const { markStarted, markExerciseResult } = useModuleProgress("mcua");
+  const [feedback, setFeedback] = useState("");
+
   /* ---------- SIMULACIÓN ---------- */
   const SIZE = 300;
   const R = 105;
@@ -42,58 +19,60 @@ export default function MCUA() {
   const alphaRef = useRef(alpha);
   const theta = useRef(0);
   const omega = useRef(0);
-  const running = useRef(false);
+  const [running, setRunning] = useState(false);
+  const runningRef = useRef(false);
   const raf = useRef(null);
   const carRef = useRef(null);
   const lastPingTheta = useRef(0);
   const audioCtx = useRef(null);
 
   const startSimulation = () => {
-  if (running.current) return;
+    if (runningRef.current) return;
 
-  
+    // Activa la simulación
+    runningRef.current = true;
+    setRunning(true);
+    theta.current = 0;
+    omega.current = 0;
+    lastPingTheta.current = 0;
 
-  // Activa la simulación
-  running.current = true;
-  theta.current = 0;
-  omega.current = 0;
-  lastPingTheta.current = 0;
+    // DESBLOQUEO AudioContext para móviles
+    if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
 
-  // DESBLOQUEO AudioContext para móviles
-if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
+    markStarted();
 
+    // VOZ al iniciar la simulación
+    speak("Cada beep o sonido indica como la velocidad angular del carro va aumentando");
 
-  // VOZ al iniciar la simulación
-  speak("Cada beep o sonido indica como la velocidad angular del carro va aumentando");
-
-  // Inicia animación
-  raf.current = requestAnimationFrame(animate);
-};
+    // Inicia animación
+    raf.current = requestAnimationFrame(animate);
+  };
 
   const stopSimulation = () => {
-  // Detener simulación
-  running.current = false;
-  cancelAnimationFrame(raf.current);
+    // Detener simulación
+    runningRef.current = false;
+    setRunning(false);
+    cancelAnimationFrame(raf.current);
 
-  // Detener voz
-  stopSpeak();
+    // Detener voz
+    stopSpeak();
 
-  // Detener sonido (si usas AudioContext para campanitas)
-  if (audioCtx.current) {
-    audioCtx.current.close();
-    audioCtx.current = null;
-  }
+    // Detener sonido (si usas AudioContext para campanitas)
+    if (audioCtx.current) {
+      audioCtx.current.close();
+      audioCtx.current = null;
+    }
 
-  // Reset posición del carro al inicio
-  if (carRef.current) {
-    carRef.current.style.transform = `translate(${C - 20}px, ${C - 10}px)`;
-  }
+    // Reset posición del carro al inicio
+    if (carRef.current) {
+      carRef.current.style.transform = `translate(${C - 20}px, ${C - 10}px)`;
+    }
 
-  // Reset variables de animación
-  theta.current = 0;
-  omega.current = 0;
-  lastPingTheta.current = 0;
-};
+    // Reset variables de animación
+    theta.current = 0;
+    omega.current = 0;
+    lastPingTheta.current = 0;
+  };
 
   const handleAlphaChange = (value) => {
     setAlpha(value);
@@ -115,9 +94,8 @@ if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.web
   };
 
   const animate = () => {
-    if (!running.current) return;
+    if (!runningRef.current) return;
 
-    
     // actualizar omega y theta
     omega.current += alphaRef.current; // incremento perceptible
     if (omega.current > 1.5) omega.current = 1.5;
@@ -134,14 +112,9 @@ if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.web
       const freq = 50 + omega.current * 300;
       playBell(freq);
       lastPingTheta.current = theta.current;
+      // vibración háptica proporcional a la velocidad angular
       if (navigator.vibrate) navigator.vibrate(Math.min(Math.floor(omega.current * 200), 50));
-    // vibración haptica proporcional a la velocidad angular
-    if (navigator.vibrate) {
-      const duration = Math.min(Math.floor(omega.current * 50), 50); // max 50ms para no molestar
-      navigator.vibrate(duration);
     }
-  }
-
 
     raf.current = requestAnimationFrame(animate);
   };
@@ -164,13 +137,14 @@ Ecuación: ω = ω₀ + α·t`;
     }
   ];
   const [ex, setEx] = useState(0);
-  const normalizeAnswer = (text) => text.toLowerCase().replace(/\s+/g,"");
   const checkAnswer = (ans) => {
     const n = normalizeAnswer(ans);
     const corrects = exercises[ex].correct.map(c => normalizeAnswer(c));
-    corrects.includes(n)
-      ? speak("¡Correcto! Muy bien, lo entendiste.")
-      : speak(`No es correcto. Reflexiona: ${exercises[ex].q}`);
+    const correct = corrects.includes(n);
+    const message = correct ? "¡Correcto! Muy bien, lo entendiste." : `No es correcto. Reflexiona: ${exercises[ex].q}`;
+    setFeedback(message);
+    markExerciseResult(correct);
+    speak(message);
   };
 
   /* ---------- EXPERIENCIAS ---------- */
@@ -187,7 +161,7 @@ Ecuación: ω = ω₀ + α·t`;
   const [exp, setExp] = useState(0);
   const handleExperienceAnswer = (res) => {
     const n = normalizeAnswer(res);
-    if (n.includes("velocidad") || n.includes("aceleración") || n.includes("rápido")) {
+    if (n.includes("velocidad") || n.includes("aceleracion") || n.includes("rapido")) {
       speak(`¡Excelente! Notaste correctamente que la velocidad y el sonido aumentan con la aceleración. Tu reflexión es correcta.`);
     } else {
       speak(`Gracias por tu reflexión: '${res}'. Intenta pensar cómo la velocidad angular y las campanitas cambian con la aceleración.`);
@@ -196,7 +170,7 @@ Ecuación: ω = ω₀ + α·t`;
 
   return (
     <div className="p-6 text-lg">
-      <Lumi onExplain={handleLumiWelcome} onStop={stopSpeak} />
+      <LumiGuide text="Hola, soy Lumi. Te acompaño paso a paso para comprender el Movimiento Circular Uniformemente Acelerado, MCUA." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
@@ -216,7 +190,7 @@ Ecuación: ω = ω₀ + α·t`;
           {/* SIMULACIÓN */}
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🚗 Simulación Pedagógica</h2>
-            <div className="relative mx-auto mt-4" style={{ width: SIZE, height: SIZE }}>
+            <div className="relative mx-auto mt-4" style={{ width: SIZE, height: SIZE }} aria-hidden="true">
               <svg width={SIZE} height={SIZE}>
                 <circle cx={C} cy={C} r={R} stroke="#333" strokeWidth="3" fill="none" />
               </svg>
@@ -228,15 +202,39 @@ Ecuación: ω = ω₀ + α·t`;
                 </svg>
               </div>
             </div>
+            <p className="sr-only" role="status">
+              {running ? `Carro acelerando en pista circular, aceleración angular ${alpha.toFixed(1)} radianes por segundo cuadrado.` : "Simulación detenida."}
+            </p>
 
-            <label className="block mt-4">
+            <label htmlFor="mcua-alpha" className="block mt-4">
               Aceleración angular: {alpha.toFixed(0)} rad/s2
-              <input type="range" min="1" max="3" step="0.2" value={alpha} onChange={(e) => handleAlphaChange(parseFloat(e.target.value))} className="w-full mt-1"/>
             </label>
+            <input
+              id="mcua-alpha"
+              type="range"
+              min="1"
+              max="3"
+              step="0.2"
+              value={alpha}
+              onChange={(e) => handleAlphaChange(parseFloat(e.target.value))}
+              className="w-full mt-1"
+            />
 
             <div className="flex gap-3 mt-3">
-              <button className="bg-green-600 text-white px-3 py-2 rounded" onClick={startSimulation}>Iniciar simulación</button>
-              <button className="bg-red-600 text-white px-3 py-2 rounded" onClick={stopSimulation}>Detener simulación</button>
+              <button
+                className="bg-green-600 text-white px-3 py-2 rounded disabled:opacity-50"
+                onClick={startSimulation}
+                disabled={running}
+              >
+                Iniciar simulación
+              </button>
+              <button
+                className="bg-red-600 text-white px-3 py-2 rounded disabled:opacity-50"
+                onClick={stopSimulation}
+                disabled={!running}
+              >
+                Detener simulación
+              </button>
             </div>
           </section>
         </div>
@@ -258,7 +256,8 @@ Ecuación: ω = ω₀ + α·t`;
               <button className="bg-gray-300 px-3 py-2 rounded" onClick={stopSpeak}>Parar</button>
               <button className="bg-blue-600 text-white px-3 py-2 rounded" onClick={() => listen(checkAnswer)}>Responder por voz</button>
             </div>
-            <button className="mt-3 bg-gray-200 px-3 py-2 rounded" onClick={() => setEx((ex + 1) % exercises.length)}>Nuevo ejercicio</button>
+            <p aria-live="polite" className="mt-3 font-medium text-purple-700 min-h-[1.5em]">{feedback}</p>
+            <button className="mt-3 bg-gray-200 px-3 py-2 rounded" onClick={() => {setEx((ex + 1) % exercises.length); setFeedback("");}}>Nuevo ejercicio</button>
           </section>
 
           {/* EXPERIENCIA */}

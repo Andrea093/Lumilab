@@ -1,46 +1,13 @@
 import React, { useState } from "react";
 import LumiAvatar from "./LumiAvatar";
-
-// Speech APIs
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
+import useLumi from "../hooks/useLumi";
 
 export default function LumiAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     { from: "lumi", text: "Hola 😊 Soy Lumi. ¿En qué te ayudo hoy?" },
   ]);
-
-  /* ---------------- VOZ ---------------- */
-
-  const speak = (text) => {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = "es-ES";
-    speechSynthesis.speak(msg);
-  };
-
-  const recognition = SpeechRecognition
-    ? new SpeechRecognition()
-    : null;
-
-  if (recognition) {
-    recognition.lang = "es-ES";
-    recognition.continuous = false;
-  }
-
-  const listen = () => {
-    if (!recognition) {
-      alert("Tu navegador no soporta reconocimiento de voz");
-      return;
-    }
-
-    recognition.start();
-
-    recognition.onresult = (event) => {
-      const text = event.results[0][0].transcript;
-      handleSend(text);
-    };
-  };
+  const { speak, listen, isSpeaking, isListening } = useLumi();
 
   /* ---------------- RESPUESTAS ---------------- */
 
@@ -88,20 +55,33 @@ export default function LumiAssistant() {
     speak(response);
   };
 
+  const avatarState = isListening ? "listening" : isSpeaking ? "talking" : "idle";
+
   /* ---------------- UI ---------------- */
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {open && (
-        <div className="w-80 bg-white rounded-2xl shadow-xl p-4 mb-3">
+        <div
+          id="lumi-assistant-panel"
+          role="dialog"
+          aria-modal="false"
+          aria-label="Asistente Lumi"
+          className="w-80 bg-white rounded-2xl shadow-xl p-4 mb-3"
+        >
           <div className="flex items-center gap-2 mb-2">
-            <LumiAvatar size={36} />
+            <LumiAvatar size={36} state={avatarState} decorative />
             <span className="font-semibold text-purple-700">
               Lumi · asistente
             </span>
           </div>
 
-          <div className="h-40 overflow-y-auto space-y-2 text-sm mb-2">
+          <div
+            className="h-40 overflow-y-auto space-y-2 text-sm mb-2"
+            role="log"
+            aria-live="polite"
+            aria-label="Conversación con Lumi"
+          >
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -117,7 +97,11 @@ export default function LumiAssistant() {
           </div>
 
           <div className="flex gap-2">
+            <label htmlFor="lumi-assistant-input" className="sr-only">
+              Escribe tu mensaje para Lumi
+            </label>
             <input
+              id="lumi-assistant-input"
               type="text"
               placeholder="Escribe o habla…"
               className="flex-1 border rounded-lg px-3 py-2 text-sm"
@@ -130,10 +114,11 @@ export default function LumiAssistant() {
             />
 
             <button
-              onClick={listen}
+              onClick={() => listen(handleSend)}
+              aria-label="Hablar con Lumi por voz"
               className="px-3 py-2 bg-purple-600 text-white rounded-lg"
             >
-              🎤
+              <span aria-hidden="true">🎤</span>
             </button>
           </div>
         </div>
@@ -141,9 +126,12 @@ export default function LumiAssistant() {
 
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls="lumi-assistant-panel"
+        aria-label={open ? "Cerrar asistente Lumi" : "Abrir asistente Lumi"}
         className="bg-white rounded-full shadow-lg border border-purple-300 p-1"
       >
-        <LumiAvatar size={56} />
+        <LumiAvatar size={56} state={avatarState} decorative />
       </button>
     </div>
   );

@@ -1,34 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import Lumi from "../components/Lumi";
-
-/* ================= VOZ ================= */
-const speak = (text) => {
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "es-ES";
-  u.rate = 0.85;
-  u.pitch = 1.35;
-  window.speechSynthesis.speak(u);
-};
-
-const stopSpeak = () => window.speechSynthesis.cancel();
-
-/* ================= RECONOCIMIENTO DE VOZ ================= */
-const listen = (onResult) => {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    speak("Este navegador no permite reconocimiento de voz.");
-    return;
-  }
-  const rec = new SpeechRecognition();
-  rec.lang = "es-ES";
-  rec.start();
-  rec.onresult = (e) => onResult(e.results[0][0].transcript.toLowerCase());
-  rec.onerror = () => speak("No se pudo reconocer la voz, intenta de nuevo.");
-};
+import LumiGuide from "../components/LumiGuide";
+import useLumi from "../hooks/useLumi";
+import useModuleProgress from "../hooks/useModuleProgress";
+import { answerMatches, normalizeAnswer } from "../utils/answer";
 
 /* ================= MCU ================= */
 export default function MCU() {
+  const { speak, stopSpeak, listen } = useLumi();
+  const { markStarted, markExerciseResult } = useModuleProgress("mcu");
+  const [feedback, setFeedback] = useState("");
+
   /* ---------- SIMULACIÓN ---------- */
   const [angularSpeed, setAngularSpeed] = useState(10); // velocidad angular
   const [running, setRunning] = useState(false);
@@ -45,10 +26,42 @@ export default function MCU() {
   const numBaskets = 8; // número de canastas
   const basketRefs = useRef([]);
 
+  /* ---------- SONIDO SUAVE PING ---------- */
+  const startSound = () => {
+    if (soundOn) return;
+    audioCtx.current = new AudioContext();
+    osc.current = audioCtx.current.createOscillator();
+    osc.current.type = "sine";
+    gainNode.current = audioCtx.current.createGain();
+    gainNode.current.gain.value = 0;
+    osc.current.connect(gainNode.current);
+    gainNode.current.connect(audioCtx.current.destination);
+    osc.current.start();
+    setSoundOn(true);
+  };
+
+  const stopSound = () => {
+    if (osc.current) {
+      osc.current.stop();
+      osc.current = null;
+      gainNode.current = null;
+      audioCtx.current = null;
+    }
+    setSoundOn(false);
+  };
+
+  const playPing = () => {
+    if (!soundOn || !osc.current || !gainNode.current) return;
+    const now = audioCtx.current.currentTime;
+    gainNode.current.gain.setValueAtTime(0.3, now);
+    gainNode.current.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+  };
+
   /* ---------- SIMULACIÓN + SONIDO ---------- */
   const startSimulation = () => {
     if (!running) setRunning(true);
     if (!soundOn) startSound();
+    markStarted();
     speak(
       "Simulación de movimiento circular uniforme iniciada. Escucha un ping cada vez que una canasta pasa por la parte superior."
     );
@@ -87,37 +100,6 @@ export default function MCU() {
     return () => cancelAnimationFrame(animationId.current);
   }, [running, angularSpeed]);
 
-  /* ---------- SONIDO SUAVE PING ---------- */
-  const startSound = () => {
-    if (soundOn) return;
-    audioCtx.current = new AudioContext();
-    osc.current = audioCtx.current.createOscillator();
-    osc.current.type = "sine";
-    gainNode.current = audioCtx.current.createGain();
-    gainNode.current.gain.value = 0;
-    osc.current.connect(gainNode.current);
-    gainNode.current.connect(audioCtx.current.destination);
-    osc.current.start();
-    setSoundOn(true);
-  };
-
-  const stopSound = () => {
-    if (osc.current) {
-      osc.current.stop();
-      osc.current = null;
-      gainNode.current = null;
-      audioCtx.current = null;
-    }
-    setSoundOn(false);
-  };
-
-  const playPing = () => {
-    if (!soundOn || !osc.current || !gainNode.current) return;
-    const now = audioCtx.current.currentTime;
-    gainNode.current.gain.setValueAtTime(0.3, now);
-    gainNode.current.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-  };
-
   /* ---------- EJERCICIOS TEÓRICOS ---------- */
   const exercises = [
     {
@@ -140,11 +122,12 @@ export default function MCU() {
     }
   ];
   const [ex, setEx] = useState(0);
-  const normalizeAnswer = (text) => text.toLowerCase().replace(/\s+/g,"").replace(/metros|m\/s|m|porsegundo|segundo|π|pi/g,"").trim();
   const checkAnswer = (ans) => {
-    const n = normalizeAnswer(ans);
-    const corrects = exercises[ex].correct.map(c=>normalizeAnswer(c));
-    corrects.includes(n)?speak("¡Muy bien! Tu respuesta es correcta."):speak(`No es correcto. ${exercises[ex].explain}`);
+    const correct = answerMatches(ans, exercises[ex].correct);
+    const message = correct ? "¡Muy bien! Tu respuesta es correcta." : `No es correcto. ${exercises[ex].explain}`;
+    setFeedback(message);
+    markExerciseResult(correct);
+    speak(message);
   };
 
   /* ---------- EXPERIENCIAS ---------- */
@@ -160,25 +143,15 @@ export default function MCU() {
   };
 
   /* ---------- LUMI ---------- */
-  const lumiRef = useRef(null);
-  const handleLumiWelcome = ()=>{
-    stopSpeak();
-    lumiRef.current = new SpeechSynthesisUtterance("Hola, soy Lumi. Este es el módulo Movimiento Circular Uniforme, MCU.");
-    lumiRef.current.lang="es-ES"; lumiRef.current.rate=0.85; lumiRef.current.pitch=1.35;
-    window.speechSynthesis.speak(lumiRef.current);
+  const handleLumiExplain = () => {
+    speak("En MCU, un objeto se mueve en círculo a velocidad constante, y la aceleración siempre apunta al centro del círculo.");
   };
-  const handleLumiExplain = ()=>{
-    stopSpeak();
-    lumiRef.current = new SpeechSynthesisUtterance("En MCU, un objeto se mueve en círculo a velocidad constante, y la aceleración siempre apunta al centro del círculo.");
-    lumiRef.current.lang="es-ES"; lumiRef.current.rate=0.85; lumiRef.current.pitch=1.35;
-    window.speechSynthesis.speak(lumiRef.current);
-  };
-  const stopLumi = ()=>{ if(lumiRef.current){window.speechSynthesis.cancel(); lumiRef.current=null;} };
+  const stopLumi = stopSpeak;
 
   /* ---------- RENDER ---------- */
   return (
     <div className="p-6 text-lg">
-      <Lumi onExplain={handleLumiWelcome} onStop={stopLumi} />
+      <LumiGuide text="Hola, soy Lumi. Este es el módulo Movimiento Circular Uniforme, MCU." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* IZQUIERDA */}
@@ -195,7 +168,7 @@ export default function MCU() {
 
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🎡 Simulación Rueda de la Fortuna</h2>
-            <div className="relative w-64 h-64 mx-auto mt-3">
+            <div className="relative w-64 h-64 mx-auto mt-3" aria-hidden="true">
               <div ref={wheelRef} className="absolute w-full h-full rounded-full border-4 border-purple-500 flex justify-center items-center origin-center">
                 {Array.from({length:numBaskets}).map((_, i) => (
                   <div
@@ -209,10 +182,12 @@ export default function MCU() {
                 ))}
               </div>
             </div>
+            <p className="sr-only" role="status">
+              {running ? `Rueda girando a ${angularSpeed} grados por segundo.` : "Simulación detenida."}
+            </p>
 
-            <label className="block mt-4">Velocidad angular: {angularSpeed}°/s
-              <input type="range" min="5" max="30" value={angularSpeed} onChange={(e)=>setAngularSpeed(+e.target.value)} className="w-full" />
-            </label>
+            <label htmlFor="mcu-angular-speed" className="block mt-4">Velocidad angular: {angularSpeed}°/s</label>
+            <input id="mcu-angular-speed" type="range" min="5" max="30" value={angularSpeed} onChange={(e)=>setAngularSpeed(+e.target.value)} className="w-full" />
 
             <div className="flex gap-3 mt-3">
               <button className="bg-green-600 text-white px-3 py-2 rounded" onClick={startSimulation}>Iniciar simulación</button>
@@ -234,7 +209,8 @@ export default function MCU() {
               <button className="bg-gray-300 px-3 py-2 rounded" onClick={stopSpeak}>Parar</button>
               <button className="bg-blue-600 text-white px-3 py-2 rounded" onClick={()=>listen(checkAnswer)}>Responder por voz</button>
             </div>
-            <button className="mt-3 bg-gray-200 px-3 py-2 rounded" onClick={()=>setEx((ex+1)%exercises.length)}>Nuevo ejercicio</button>
+            <p aria-live="polite" className="mt-3 font-medium text-purple-700 min-h-[1.5em]">{feedback}</p>
+            <button className="mt-3 bg-gray-200 px-3 py-2 rounded" onClick={()=>{setEx((ex+1)%exercises.length); setFeedback("");}}>Nuevo ejercicio</button>
           </section>
 
           <section className="bg-white p-5 rounded-xl shadow">

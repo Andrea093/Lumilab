@@ -1,35 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import Lumi from "../components/Lumi";
-
-/* ================= VOZ ================= */
-const speak = (text) => {
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "es-ES";
-  u.rate = 0.85;
-  u.pitch = 1.35;
-  window.speechSynthesis.speak(u);
-};
-
-const stopSpeak = () => window.speechSynthesis.cancel();
-
-/* ================= RECONOCIMIENTO DE VOZ ================= */
-const listen = (onResult) => {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    speak("Este navegador no permite reconocimiento de voz.");
-  
-    return;
-  }
-  const rec = new SpeechRecognition();
-  rec.lang = "es-ES";
-  rec.start();
-  rec.onresult = (e) => onResult(e.results[0][0].transcript.toLowerCase());
-  rec.onerror = () => speak("No se pudo reconocer la voz, intenta de nuevo.");
-};
+import LumiGuide from "../components/LumiGuide";
+import useLumi from "../hooks/useLumi";
+import useModuleProgress from "../hooks/useModuleProgress";
+import { answerMatches, normalizeAnswer } from "../utils/answer";
 
 /* ================= MRUA ================= */
 export default function MRUA() {
+  const { speak, stopSpeak, listen } = useLumi();
+  const { markStarted, markExerciseResult } = useModuleProgress("mrua");
+  const [feedback, setFeedback] = useState("");
+
   /* ---------- ESTADOS ---------- */
   const [velocity, setVelocity] = useState(0);
   const [acceleration] = useState(2);
@@ -50,6 +30,7 @@ export default function MRUA() {
   const startSimulation = () => {
     if (!running) setRunning(true);
     if (!soundOn) startSound();
+    markStarted();
     speak(
       "La simulación MRUA ha iniciado. Escucha cómo el cohete acelera de manera constante."
     );
@@ -143,15 +124,12 @@ export default function MRUA() {
   ];
   const [ex, setEx] = useState(0);
 
-  const normalizeAnswer = (text) =>
-    text.toLowerCase().replace(/\s+/g,"").replace(/metros|m\/s|m|porsegundo|segundo/g,"").trim();
-
   const checkAnswer = (ans) => {
-    const n = normalizeAnswer(ans);
-    const corrects = exercises[ex].correct.map(c=>normalizeAnswer(c));
-    corrects.includes(n)
-      ? speak("¡Muy bien! Tu respuesta es correcta.")
-      : speak(`No es correcto. ${exercises[ex].explain}`);
+    const correct = answerMatches(ans, exercises[ex].correct);
+    const message = correct ? "¡Muy bien! Tu respuesta es correcta." : `No es correcto. ${exercises[ex].explain}`;
+    setFeedback(message);
+    markExerciseResult(correct);
+    speak(message);
   };
 
   /* ---------- EXPERIENCIAS ---------- */
@@ -169,38 +147,16 @@ export default function MRUA() {
   };
 
   /* ---------- LUMI ---------- */
-  const lumiRef = useRef(null);
-
-  const handleLumiWelcome = () => { 
-    stopSpeak();
-    lumiRef.current = new SpeechSynthesisUtterance(
-      "Hola, soy Lumi. Este es el módulo MRUA, movimiento rectilíneo uniformemente acelerado."
-    );
-    lumiRef.current.lang="es-ES";
-    lumiRef.current.rate=0.85;
-    lumiRef.current.pitch=1.35;
-    window.speechSynthesis.speak(lumiRef.current);
+  const handleLumiExplain = () => {
+    speak("El MRUA describe un objeto que acelera en línea recta con aceleración constante.");
   };
 
-  const handleLumiExplain = () => { 
-    stopSpeak();
-    lumiRef.current = new SpeechSynthesisUtterance(
-      "El MRUA describe un objeto que acelera en línea recta con aceleración constante."
-    );
-    lumiRef.current.lang="es-ES";
-    lumiRef.current.rate=0.85;
-    lumiRef.current.pitch=1.35;
-    window.speechSynthesis.speak(lumiRef.current);
-  };
-
-  const stopLumi = () => { 
-    if(lumiRef.current){window.speechSynthesis.cancel(); lumiRef.current=null;} 
-  };
+  const stopLumi = stopSpeak;
 
   /* ---------- RENDER ---------- */
   return (
     <div className="p-6 text-lg bg-gray-200 rounded-xl">
-      <Lumi onExplain={handleLumiWelcome} onStop={stopLumi} />
+      <LumiGuide text="Hola, soy Lumi. Este es el módulo MRUA, movimiento rectilíneo uniformemente acelerado." />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 
@@ -218,27 +174,31 @@ export default function MRUA() {
 
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🚀 Simulación</h2>
-            <div className="relative h-64 bg-gray-300 rounded mt-3 overflow-hidden">
+            <div className="relative h-64 bg-gray-300 rounded mt-3 overflow-hidden" aria-hidden="true">
               <svg ref={rocketRef} className="absolute bottom-0 left-1/2 w-16 transform -translate-x-1/2" viewBox="0 0 64 128">
                 <polygon points="32,0 48,64 32,48 16,64" fill="#FF5722"/>
                 <rect x="28" y="48" width="8" height="64" fill="#FF5722"/>
                 <polygon points="32,112 40,128 32,120 24,128" fill="#FFC107"/>
               </svg>
             </div>
-            <label className="block mt-4">
+            <p className="sr-only" role="status">
+              {running ? `Cohete acelerando, velocidad actual ${velocity.toFixed(1)} metros por segundo.` : "Simulación detenida."}
+            </p>
+            <label htmlFor="mrua-velocity" className="block mt-4">
               Velocidad: {velocity.toFixed(1)} m/s
-              <input 
-                type="range" 
-                min="0" 
-                max="60" 
-                value={velocity} 
-                onChange={(e)=>{
-                  setVelocity(+e.target.value);
-                  velRef.current = +e.target.value;
-                }} 
-                className="w-full" 
-              />
             </label>
+            <input
+              id="mrua-velocity"
+              type="range"
+              min="0"
+              max="60"
+              value={velocity}
+              onChange={(e)=>{
+                setVelocity(+e.target.value);
+                velRef.current = +e.target.value;
+              }}
+              className="w-full"
+            />
             <div className="flex gap-3 mt-3">
               <button className="bg-green-600 text-white px-3 py-2 rounded" onClick={startSimulation}>Iniciar simulación</button>
               <button className="bg-red-600 text-white px-3 py-2 rounded" onClick={stopSimulation}>Detener simulación</button>
@@ -259,6 +219,8 @@ export default function MRUA() {
               <button className="bg-gray-300 px-3 py-2 rounded" onClick={stopSpeak}>Parar</button>
               <button className="bg-blue-600 text-white px-3 py-2 rounded" onClick={()=>listen(checkAnswer)}>Responder por voz</button>
             </div>
+            <p aria-live="polite" className="mt-3 font-medium text-purple-700 min-h-[1.5em]">{feedback}</p>
+            <button className="mt-3 bg-gray-200 px-3 py-2 rounded" onClick={()=>{setEx((ex+1)%exercises.length); setFeedback("");}}>Nuevo ejercicio</button>
           </section>
 
           <section className="bg-white p-5 rounded-xl shadow">
@@ -267,6 +229,7 @@ export default function MRUA() {
             <button className="mt-3 bg-purple-600 text-white px-3 py-2 rounded" onClick={()=>speak(experiences[exp])}>Escuchar experiencia</button>
             <button className="mt-2 bg-blue-500 text-white px-3 py-2 rounded" onClick={()=>listen(handleExperienceAnswer)}>Responder por voz</button>
             <button className="mt-2 bg-gray-300 px-3 py-2 rounded" onClick={stopSpeak}>Parar</button>
+            <button className="mt-3 bg-gray-200 px-3 py-2 rounded" onClick={()=>setExp((exp+1)%experiences.length)}>Nueva experiencia</button>
           </section>
         </div>
 

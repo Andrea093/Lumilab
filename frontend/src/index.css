@@ -49,6 +49,16 @@ body {
   100% { transform: scale(.95); opacity:.9 }
 }
 
+/* Estados del avatar de Lumi */
+@keyframes lumi-talk {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.6); }
+}
+@keyframes lumi-listen-ring {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
 /* Card glass */
 .card-glass {
   background: rgba(255,255,255,0.9);
@@ -64,4 +74,88 @@ body {
   border-radius: .75rem;
   font-weight: 600;
   box-shadow: 0 6px 18px rgba(124,58,237,0.12);
+}
+
+/* ================= ACCESIBILIDAD ================= */
+
+html {
+  font-size: calc(100% * var(--font-scale, 1));
+}
+
+/* enlace "saltar al contenido", visible solo al recibir foco por teclado */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--accent);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* foco visible consistente en toda la app */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* alto contraste */
+:root[data-contrast="high"] {
+  --accent: #4c1d95;
+  --accent-2: #be185d;
+}
+:root[data-contrast="high"] body {
+  background: #ffffff;
+  color: #000000;
+}
+:root[data-contrast="high"] a:focus-visible,
+:root[data-contrast="high"] button:focus-visible,
+:root[data-contrast="high"] input:focus-visible,
+:root[data-contrast="high"] select:focus-visible,
+:root[data-contrast="high"] textarea:focus-visible,
+:root[data-contrast="high"] [tabindex]:focus-visible {
+  outline: 3px solid #000000;
+}
+
+/* reducir movimiento */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
