@@ -3,6 +3,7 @@ import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { answerMatches, normalizeAnswer } from "../utils/answer";
+import { playTone, vibratePattern } from "../utils/sound";
 
 const SOUND_SPEED = 343; // m/s, velocidad del sonido en el aire
 
@@ -20,6 +21,7 @@ export default function Ondas() {
   const audioCtx = useRef(null);
   const osc = useRef(null);
   const gainNode = useRef(null);
+  const pulseInterval = useRef(null);
 
   const wavelength = SOUND_SPEED / frequency;
 
@@ -48,6 +50,10 @@ export default function Ondas() {
       gainNode.current = null;
       audioCtx.current = null;
     }
+    if (pulseInterval.current) {
+      clearInterval(pulseInterval.current);
+      pulseInterval.current = null;
+    }
     setSoundOn(false);
     stopSpeak();
   };
@@ -55,8 +61,33 @@ export default function Ondas() {
   useEffect(() => {
     if (soundOn && osc.current) {
       osc.current.frequency.setValueAtTime(frequency, audioCtx.current.currentTime);
-      if (navigator.vibrate) navigator.vibrate(Math.min(Math.floor(frequency / 20), 100));
     }
+  }, [frequency, soundOn]);
+
+  // Pulso rítmico (tono corto + vibración) cuya cadencia se acelera con la frecuencia:
+  // así una persona ciega puede "sentir" el cambio de frecuencia por el ritmo del pulso,
+  // no solo por el tono continuo.
+  useEffect(() => {
+    if (pulseInterval.current) {
+      clearInterval(pulseInterval.current);
+      pulseInterval.current = null;
+    }
+    if (!soundOn) return;
+
+    const ticksPerSecond = Math.min(20, Math.max(2, frequency / 20));
+    const intervalMs = 1000 / ticksPerSecond;
+
+    pulseInterval.current = setInterval(() => {
+      playTone({ freq: frequency, duration: 0.06, type: "sine", gain: 0.12 });
+      vibratePattern(30);
+    }, intervalMs);
+
+    return () => {
+      if (pulseInterval.current) {
+        clearInterval(pulseInterval.current);
+        pulseInterval.current = null;
+      }
+    };
   }, [frequency, soundOn]);
 
   useEffect(() => {

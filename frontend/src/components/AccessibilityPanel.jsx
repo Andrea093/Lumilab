@@ -81,7 +81,7 @@ export default function AccessibilityPanel() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="accessibility-panel-title"
-            className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border p-5 z-50 text-left"
+            className="fixed sm:absolute inset-x-4 sm:inset-x-auto top-16 sm:top-full sm:right-0 sm:mt-2 w-auto sm:w-80 max-w-sm bg-white rounded-2xl shadow-xl border p-5 z-50 text-left"
           >
             <div className="flex items-center justify-between mb-3">
               <h2 id="accessibility-panel-title" className="font-bold text-violet-800 text-lg">

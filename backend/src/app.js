@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { authRouter } from "./routes/auth.routes.js";
 import { usersRouter } from "./routes/users.routes.js";
 import { progressRouter } from "./routes/progress.routes.js";
+import { teacherRouter } from "./routes/teacher.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 export const app = express();
@@ -19,6 +20,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/progress", progressRouter);
+app.use("/api/teacher", teacherRouter);
 
 // Sirve el frontend ya compilado (frontend/dist) cuando existe, para desplegar
 // backend y frontend como un único servicio (mismo origen, sin configurar CORS).

@@ -3,6 +3,7 @@ import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { normalizeAnswer, answerMatches } from "../utils/answer";
+import { playTone, vibratePattern } from "../utils/sound";
 
 /* ================= MRU ================= */
 export default function MRU() {
@@ -45,7 +46,11 @@ export default function MRU() {
     if (running) {
       const move = () => {
         pos.current += velocity * 0.02;
-        if (pos.current > 260) pos.current = 0;
+        if (pos.current > 260) {
+          pos.current = 0;
+          playTone({ freq: 720, duration: 0.1, type: "triangle", gain: 0.15 });
+          vibratePattern(40);
+        }
         carRef.current.style.transform = `translateX(${pos.current}px)`;
         animationId.current = requestAnimationFrame(move);
       };
@@ -205,7 +210,7 @@ export default function MRU() {
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🚗 Simulación</h2>
 
-            <div className="relative h-28 bg-gray-100 rounded mt-3" aria-hidden="true">
+            <div className="relative h-28 bg-gray-100 rounded mt-3 overflow-hidden" aria-hidden="true">
               <div
                 ref={carRef}
                 className="absolute left-2 top-10 w-20 h-10 bg-red-500 rounded"

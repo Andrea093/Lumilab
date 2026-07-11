@@ -9,6 +9,7 @@ export default function Navbar() {
   const [simOpen, setSimOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const isTeacher = user?.role === "teacher" || user?.role === "admin";
 
   const closeAll = () => {
     setMenuOpen(false);
@@ -88,6 +89,12 @@ export default function Navbar() {
             Nosotros
           </Link>
 
+          {isTeacher && (
+            <Link to="/panel-docente" className="px-4 py-2 rounded-lg hover:bg-gray-100 font-semibold text-violet-700">
+              Panel docente
+            </Link>
+          )}
+
           <AccessibilityPanel />
 
           {isAuthenticated ? (
@@ -143,6 +150,12 @@ export default function Navbar() {
           <Link onClick={closeAll} to="/nosotros" className="block">
             Nosotros
           </Link>
+
+          {isTeacher && (
+            <Link onClick={closeAll} to="/panel-docente" className="block font-semibold text-violet-700">
+              Panel docente
+            </Link>
+          )}
 
           <AccessibilityPanel />
 

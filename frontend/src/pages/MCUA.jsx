@@ -3,6 +3,15 @@ import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { normalizeAnswer } from "../utils/answer";
+import { playChime, vibratePattern } from "../utils/sound";
+
+// El tablero SVG es cuadrado de tamaño fijo (matemática de la animación en px), pero se
+// calcula una sola vez según el ancho disponible para que no desborde en pantallas angostas.
+function getResponsiveSize() {
+  if (typeof window === "undefined") return 300;
+  const available = window.innerWidth - 96; // compensa el padding de página + tarjeta
+  return Math.round(Math.max(200, Math.min(300, available)));
+}
 
 /* ================= MCUA PEDAGÓGICO ================= */
 export default function MCUA() {
@@ -11,8 +20,8 @@ export default function MCUA() {
   const [feedback, setFeedback] = useState("");
 
   /* ---------- SIMULACIÓN ---------- */
-  const SIZE = 300;
-  const R = 105;
+  const [SIZE] = useState(getResponsiveSize);
+  const R = SIZE * 0.35;
   const C = SIZE / 2;
 
   const [alpha, setAlpha] = useState(0.005);
@@ -25,6 +34,7 @@ export default function MCUA() {
   const carRef = useRef(null);
   const lastPingTheta = useRef(0);
   const audioCtx = useRef(null);
+  const maxSpeedReached = useRef(false);
 
   const startSimulation = () => {
     if (runningRef.current) return;
@@ -35,6 +45,7 @@ export default function MCUA() {
     theta.current = 0;
     omega.current = 0;
     lastPingTheta.current = 0;
+    maxSpeedReached.current = false;
 
     // DESBLOQUEO AudioContext para móviles
     if (!audioCtx.current) audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -72,6 +83,7 @@ export default function MCUA() {
     theta.current = 0;
     omega.current = 0;
     lastPingTheta.current = 0;
+    maxSpeedReached.current = false;
   };
 
   const handleAlphaChange = (value) => {
@@ -98,7 +110,15 @@ export default function MCUA() {
 
     // actualizar omega y theta
     omega.current += alphaRef.current; // incremento perceptible
-    if (omega.current > 1.5) omega.current = 1.5;
+    if (omega.current > 1.5) {
+      omega.current = 1.5;
+      if (!maxSpeedReached.current) {
+        maxSpeedReached.current = true;
+        playChime([523, 659, 784, 1046]);
+        vibratePattern([70, 30, 70, 30, 150]);
+        speak("El carro alcanzó su velocidad angular máxima.");
+      }
+    }
     theta.current += omega.current;
 
     // posición abstracta para el niño vidente

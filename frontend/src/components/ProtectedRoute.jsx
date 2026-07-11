@@ -2,11 +2,15 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+export default function ProtectedRoute({ children, roles }) {
+  const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (roles && !roles.includes(user?.role)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

@@ -27,4 +27,6 @@ export const api = {
   getProgress: (moduleKey, token) => request(`/progress/${moduleKey}`, { token }),
   putProgress: (moduleKey, payload, token) =>
     request(`/progress/${moduleKey}`, { method: "PUT", body: payload, token }),
+  getTeacherStudents: (token, grade) =>
+    request(`/teacher/students${grade ? `?grade=${grade}` : ""}`, { token }),
 };

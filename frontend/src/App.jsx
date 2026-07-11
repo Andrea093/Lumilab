@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import { useAuth } from "./context/AuthContext";
+import OnboardingStory, { hasSeenOnboarding } from "./components/OnboardingStory";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
 import MRU from "./pages/MRU";
 import MRUA from "./pages/MRUA";
 import MCU from "./pages/MCU";
@@ -15,10 +19,17 @@ import LumiAssistant from "./components/LumiAssistant";
 import SkipLink from "./components/SkipLink";
 
 export default function App() {
+  const { isAuthenticated } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenOnboarding());
+
   return (
     <BrowserRouter>
       <SkipLink />
       <Navbar />
+
+      {isAuthenticated && showOnboarding && (
+        <OnboardingStory onFinish={() => setShowOnboarding(false)} />
+      )}
 
       <main id="main-content">
         <Routes>
@@ -77,6 +88,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Ondas />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/panel-docente"
+            element={
+              <ProtectedRoute roles={["teacher", "admin"]}>
+                <TeacherDashboard />
               </ProtectedRoute>
             }
           />

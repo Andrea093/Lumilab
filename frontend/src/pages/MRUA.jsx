@@ -3,6 +3,7 @@ import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { answerMatches, normalizeAnswer } from "../utils/answer";
+import { playChime, vibratePattern } from "../utils/sound";
 
 /* ================= MRUA ================= */
 export default function MRUA() {
@@ -25,11 +26,13 @@ export default function MRUA() {
   const audioCtx = useRef(null);
   const osc = useRef(null);
   const gainNode = useRef(null);
+  const reachedTop = useRef(false);
 
   /* ---------- SIMULACIÓN ---------- */
   const startSimulation = () => {
     if (!running) setRunning(true);
     if (!soundOn) startSound();
+    reachedTop.current = false;
     markStarted();
     speak(
       "La simulación MRUA ha iniciado. Escucha cómo el cohete acelera de manera constante."
@@ -42,6 +45,7 @@ export default function MRUA() {
     pos.current = 0;
     setVelocity(0);
     if (rocketRef.current) rocketRef.current.style.transform = `translate(-50%, 0px)`;
+    reachedTop.current = false;
     stopSound();
     stopSpeak();
     cancelAnimationFrame(animationId.current);
@@ -58,7 +62,15 @@ export default function MRUA() {
       velRef.current += acceleration * 0.02;
       pos.current += velRef.current * 0.02 * scale;
 
-      if (pos.current > maxHeight) pos.current = maxHeight;
+      if (pos.current > maxHeight) {
+        pos.current = maxHeight;
+        if (!reachedTop.current) {
+          reachedTop.current = true;
+          playChime([880, 1175, 1568]);
+          vibratePattern([80, 40, 80, 40, 160]);
+          speak("El cohete alcanzó su altura máxima visible.");
+        }
+      }
 
       if (rocketRef.current)
         rocketRef.current.style.transform = `translate(-50%, -${pos.current}px)`;

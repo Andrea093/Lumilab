@@ -67,7 +67,7 @@ export default function LumiAssistant() {
           role="dialog"
           aria-modal="false"
           aria-label="Asistente Lumi"
-          className="w-80 bg-white rounded-2xl shadow-xl p-4 mb-3"
+          className="w-80 max-w-[calc(100vw-3rem)] bg-white rounded-2xl shadow-xl p-4 mb-3"
         >
           <div className="flex items-center gap-2 mb-2">
             <LumiAvatar size={36} state={avatarState} decorative />

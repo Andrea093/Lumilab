@@ -25,11 +25,15 @@ const EYES = {
   thinking: { ry: 2.2, cy: 43 },
 };
 
+// Avatar de Lumi: científica de laboratorio (bata, gafas de protección y una idea-luz
+// sobre la cabeza) para que el personaje cuente por sí mismo el rol que cumple —guiar
+// experimentos— y no solo sea una mascota genérica.
 export default function LumiAvatar({ size = 56, state = "idle", decorative = false }) {
   const { reduceMotion } = useAccessibility();
   const eyes = EYES[state] || EYES.idle;
   const mouthPath = MOUTHS[state] || MOUTHS.idle;
   const animate = !reduceMotion;
+  const sparkle = (state === "happy" || state === "thinking") && animate;
 
   return (
     <div
@@ -52,8 +56,28 @@ export default function LumiAvatar({ size = 56, state = "idle", decorative = fal
       )}
       <svg viewBox="0 0 120 120" width={size} height={size} xmlns="http://www.w3.org/2000/svg">
         <rect width="120" height="120" rx="20" fill="#f5e1ff" />
-        <circle cx="60" cy="45" r="20" fill="#ffe0bd" />
+
+        {/* bombilla de idea, sobre la cabeza: Lumi = luz que guía el experimento */}
+        <g style={sparkle ? { animation: "lumi-sparkle 1.2s ease-in-out infinite" } : undefined}>
+          <circle cx="60" cy="14" r="6" fill="#fde047" stroke="#f59e0b" strokeWidth="1.5" />
+          <path d="M57 19 h6 M58 21 h4" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+
+        {/* pelo */}
         <path d="M38 45c4-18 40-25 44 0" fill="#7c3aed" />
+
+        {/* cara */}
+        <circle cx="60" cy="45" r="20" fill="#ffe0bd" />
+
+        {/* gafas de laboratorio */}
+        <g stroke="#334155" strokeWidth="2" fill="none">
+          <circle cx="52" cy={eyes.cy} r="7.5" fill="rgba(199,229,255,0.55)" />
+          <circle cx="68" cy={eyes.cy} r="7.5" fill="rgba(199,229,255,0.55)" />
+          <path d="M59.5 44 h1" />
+          <path d="M44.5 43 q-4 0 -4 4" strokeLinecap="round" />
+          <path d="M75.5 43 q4 0 4 4" strokeLinecap="round" />
+        </g>
+
         <ellipse cx="52" cy={eyes.cy} rx="2.5" ry={eyes.ry} fill="#333" />
         <ellipse cx="68" cy={eyes.cy} rx="2.5" ry={eyes.ry} fill="#333" />
         <path
@@ -67,7 +91,12 @@ export default function LumiAvatar({ size = 56, state = "idle", decorative = fal
               : undefined
           }
         />
-        <rect x="36" y="70" width="48" height="32" rx="10" fill="#fde047" />
+
+        {/* bata de laboratorio con solapa, en vez del torso plano original */}
+        <path d="M36 70 h48 v22 a10 10 0 0 1-10 10 h-28 a10 10 0 0 1-10-10 Z" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.5" />
+        <path d="M60 70 L52 80 L60 78 L68 80 Z" fill="#e2e8f0" />
+        <circle cx="60" cy="90" r="1.8" fill="#94a3b8" />
+        <circle cx="60" cy="96" r="1.8" fill="#94a3b8" />
       </svg>
     </div>
   );

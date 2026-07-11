@@ -3,6 +3,7 @@ import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { answerMatches, normalizeAnswer } from "../utils/answer";
+import { playTone, vibratePattern } from "../utils/sound";
 
 /* ================= MCU ================= */
 export default function MCU() {
@@ -25,6 +26,7 @@ export default function MCU() {
 
   const numBaskets = 8; // número de canastas
   const basketRefs = useRef([]);
+  const prevAngle = useRef(0);
 
   /* ---------- SONIDO SUAVE PING ---------- */
   const startSound = () => {
@@ -80,6 +82,12 @@ export default function MCU() {
       const move = () => {
         angle.current += angularSpeed * 0.5; // giro lento y accesible
         angle.current %= 360;
+        if (angle.current < prevAngle.current) {
+          // completó una vuelta: tono distinto y más largo al ping de cada canasta
+          playTone({ freq: 300, duration: 0.2, type: "sawtooth", gain: 0.18 });
+          vibratePattern([60, 30, 60]);
+        }
+        prevAngle.current = angle.current;
         if (wheelRef.current) wheelRef.current.style.transform = `rotate(${angle.current}deg)`;
 
         // Chequeo de cada canasta
@@ -168,7 +176,11 @@ export default function MCU() {
 
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🎡 Simulación Rueda de la Fortuna</h2>
-            <div className="relative w-64 h-64 mx-auto mt-3" aria-hidden="true">
+            <div
+              className="relative mx-auto mt-3"
+              style={{ "--mcu-r": "clamp(64px, 26vw, 120px)", width: "calc(2 * var(--mcu-r) + 40px)", height: "calc(2 * var(--mcu-r) + 40px)" }}
+              aria-hidden="true"
+            >
               <div ref={wheelRef} className="absolute w-full h-full rounded-full border-4 border-purple-500 flex justify-center items-center origin-center">
                 {Array.from({length:numBaskets}).map((_, i) => (
                   <div
@@ -176,7 +188,7 @@ export default function MCU() {
                     ref={el=>basketRefs.current[i]=el}
                     className="absolute w-10 h-10 bg-yellow-400 rounded-full border-2 border-red-500"
                     style={{
-                      transform:`rotate(${(360/numBaskets)*i}deg) translateY(-120px) rotate(-${(360/numBaskets)*i}deg)`
+                      transform:`rotate(${(360/numBaskets)*i}deg) translateY(calc(var(--mcu-r) * -1)) rotate(-${(360/numBaskets)*i}deg)`
                     }}
                   />
                 ))}

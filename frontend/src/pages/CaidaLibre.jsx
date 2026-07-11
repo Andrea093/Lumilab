@@ -3,6 +3,7 @@ import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { answerMatches, normalizeAnswer } from "../utils/answer";
+import { playThud, vibratePattern } from "../utils/sound";
 
 const GRAVITY = 9.8; // m/s²
 
@@ -64,6 +65,8 @@ export default function CaidaLibre() {
         setVelocity(Math.sqrt(2 * GRAVITY * maxFallDistance));
         setRunning(false);
         stopSound();
+        playThud();
+        vibratePattern([120, 40, 200]);
         speak("El objeto llegó al suelo.");
         return;
       }
@@ -173,7 +176,11 @@ export default function CaidaLibre() {
           <section className="bg-white p-5 rounded-xl shadow">
             <h2 className="font-bold text-purple-700">🍎 Simulación</h2>
 
-            <div className="relative bg-gray-100 rounded mt-3" style={{ height: 260 }} aria-hidden="true">
+            <div
+              className="relative bg-gray-100 rounded mt-3 overflow-hidden"
+              style={{ height: "clamp(160px, 45vw, 260px)" }}
+              aria-hidden="true"
+            >
               <div
                 ref={objectRef}
                 className="absolute left-1/2 -translate-x-1/2 w-10 h-10 bg-red-500 rounded-full"
