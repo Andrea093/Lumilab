@@ -2,10 +2,10 @@ services:
   - type: web
     name: lumilab
     runtime: node
-    # El plan "free" de Render NO admite disco persistente: los datos (usuarios, progreso)
-    # se perderían cada vez que el servicio se reinicia por inactividad. Para conservar
-    # los datos de verdad se necesita un plan pago (ej. "starter") con el disco de abajo.
-    plan: starter
+    # Plan free: sin costo y sin disco persistente propio. Los datos (usuarios, progreso)
+    # viven en Turso (base de datos libSQL remota con capa gratuita persistente), así que
+    # no se pierden cuando el servicio se reinicia por inactividad.
+    plan: free
     buildCommand: "cd frontend && npm install && npm run build && cd ../backend && npm install"
     startCommand: "node backend/src/server.js"
     healthCheckPath: /api/health
@@ -14,9 +14,11 @@ services:
         value: 22.11.0
       - key: PORT
         value: 4001
-      - key: DB_PATH
-        value: /var/data/lumilab.db
       - key: JWT_SECRET
+        sync: false
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
         sync: false
       - key: ADMIN_NAME
         sync: false
@@ -24,7 +26,3 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-    disk:
-      name: lumilab-data
-      mountPath: /var/data
-      sizeGB: 1

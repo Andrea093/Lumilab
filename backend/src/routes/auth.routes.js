@@ -22,15 +22,15 @@ authRouter.post("/register", async (req, res, next) => {
       return res.status(400).json({ error: "La contrasena debe tener al menos 6 caracteres." });
     }
 
-    if (findByDocumentId(documentId)) {
+    if (await findByDocumentId(documentId)) {
       return res.status(409).json({ error: "Ya existe una cuenta con ese documento." });
     }
-    if (email && findByEmail(email)) {
+    if (email && (await findByEmail(email))) {
       return res.status(409).json({ error: "Ya existe una cuenta con ese correo." });
     }
 
     const passwordHash = await hashPassword(password);
-    const user = createUser({
+    const user = await createUser({
       fullName,
       grade: gradeNumber,
       documentId,
@@ -52,7 +52,7 @@ authRouter.post("/login", async (req, res, next) => {
       return res.status(400).json({ error: "Documento/correo y contrasena son obligatorios." });
     }
 
-    const user = findByEmail(identifier) || findByDocumentId(identifier);
+    const user = (await findByEmail(identifier)) || (await findByDocumentId(identifier));
     if (!user) {
       return res.status(401).json({ error: "Credenciales invalidas." });
     }

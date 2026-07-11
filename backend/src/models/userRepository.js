@@ -1,39 +1,36 @@
 import { db } from "../db/index.js";
 
-const insertStmt = db.prepare(
-  `INSERT INTO users (full_name, role, grade, document_id, email, password_hash)
-   VALUES (?, ?, ?, ?, ?, ?)`
-);
-
-const findByEmailStmt = db.prepare("SELECT * FROM users WHERE email = ?");
-const findByDocumentStmt = db.prepare("SELECT * FROM users WHERE document_id = ?");
-const findByIdStmt = db.prepare("SELECT * FROM users WHERE id = ?");
-
-export function createUser({ fullName, role = "student", grade, documentId, email, passwordHash }) {
-  const info = insertStmt.run(fullName, role, grade ?? null, documentId ?? null, email ?? null, passwordHash);
-  return findById(Number(info.lastInsertRowid));
+export async function createUser({ fullName, role = "student", grade, documentId, email, passwordHash }) {
+  const result = await db.execute({
+    sql: `INSERT INTO users (full_name, role, grade, document_id, email, password_hash)
+          VALUES (?, ?, ?, ?, ?, ?)`,
+    args: [fullName, role, grade ?? null, documentId ?? null, email ?? null, passwordHash],
+  });
+  return findById(Number(result.lastInsertRowid));
 }
 
-export function findByEmail(email) {
+export async function findByEmail(email) {
   if (!email) return undefined;
-  return findByEmailStmt.get(email);
+  const result = await db.execute({ sql: "SELECT * FROM users WHERE email = ?", args: [email] });
+  return result.rows[0];
 }
 
-export function findByDocumentId(documentId) {
+export async function findByDocumentId(documentId) {
   if (!documentId) return undefined;
-  return findByDocumentStmt.get(documentId);
+  const result = await db.execute({ sql: "SELECT * FROM users WHERE document_id = ?", args: [documentId] });
+  return result.rows[0];
 }
 
-export function findById(id) {
-  return findByIdStmt.get(id);
+export async function findById(id) {
+  const result = await db.execute({ sql: "SELECT * FROM users WHERE id = ?", args: [id] });
+  return result.rows[0];
 }
 
-const updatePasswordAndRoleStmt = db.prepare(
-  "UPDATE users SET password_hash = ?, role = ? WHERE id = ?"
-);
-
-export function updatePasswordAndRole(id, { passwordHash, role }) {
-  updatePasswordAndRoleStmt.run(passwordHash, role, id);
+export async function updatePasswordAndRole(id, { passwordHash, role }) {
+  await db.execute({
+    sql: "UPDATE users SET password_hash = ?, role = ? WHERE id = ?",
+    args: [passwordHash, role, id],
+  });
   return findById(id);
 }
 

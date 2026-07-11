@@ -25,13 +25,13 @@ async function main() {
   }
 
   const passwordHash = await hashPassword(password);
-  const existing = findByEmail(email);
+  const existing = await findByEmail(email);
 
   if (existing) {
-    updatePasswordAndRole(existing.id, { passwordHash, role: "teacher" });
+    await updatePasswordAndRole(existing.id, { passwordHash, role: "teacher" });
     console.log(`Cuenta existente actualizada a rol 'teacher': ${email}`);
   } else {
-    createUser({ fullName, role: "teacher", documentId, email, passwordHash });
+    await createUser({ fullName, role: "teacher", documentId, email, passwordHash });
     console.log(`Cuenta de docente/administrador creada: ${email}`);
   }
 

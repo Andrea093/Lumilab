@@ -1,7 +1,7 @@
 import { verifyToken } from "../utils/jwt.js";
 import { findById, toPublicUser } from "../models/userRepository.js";
 
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const [scheme, token] = header.split(" ");
 
@@ -11,7 +11,7 @@ export function requireAuth(req, res, next) {
 
   try {
     const payload = verifyToken(token);
-    const user = findById(payload.sub);
+    const user = await findById(payload.sub);
     if (!user) {
       return res.status(401).json({ error: "Sesion invalida." });
     }
