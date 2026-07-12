@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import LumiAvatar from "./LumiAvatar";
 import useLumi from "../hooks/useLumi";
+import { normalizeAnswer } from "../utils/answer";
+import lumiPersonaje from "../assets/lumi-personaje.png";
 
 const SEEN_KEY = "lumilab_onboarding_seen";
 const MIC_KEY = "lumilab_mic_primed";
@@ -17,16 +19,21 @@ const STORY = [
   "Hace tiempo, en un laboratorio lleno de preguntas sin responder, nació una chispa de curiosidad. Le pusieron por nombre Lumi.",
   "Lumi se puso su bata, sus gafas de laboratorio, y descubrió algo importante: la física no solo se ve, también se escucha y se siente. El sonido de una caída, el pulso de una onda, la vibración de una rueda que gira.",
   "Desde entonces, Lumi acompaña cada experimento de Lumilab, contando lo que pasa con su voz, para que nadie se quede afuera de la ciencia por no poder verla.",
-  "Yo soy Lumi, y voy a estar contigo en cada simulación.",
+  "Yo soy Lumi, y voy a estar contigo en cada simulación. Cuando quieras seguir, dime 'continuar', o toca el botón.",
 ];
 
+const CONTINUE_WORDS = ["continu", "siguiente", "listo", "adelante", "ok", "vale", "si"];
+const ACCEPT_WORDS = ["activ", "acept", "si", "listo", "ok"];
+const DECLINE_WORDS = ["no", "despues", "ahora no", "luego"];
+
 // Modal de bienvenida: se muestra una sola vez por dispositivo, después de iniciar sesión.
-// Combina la historia de origen de Lumi (narrada) con la solicitud única y accesible del
-// permiso de micrófono, para que quede concedido para siempre y no vuelva a interrumpir.
+// Combina la historia de origen de Lumi (narrada, con su ilustración) y la solicitud única y
+// accesible del permiso de micrófono, con opción de avanzar hablando o tocando botones.
 export default function OnboardingStory({ onFinish }) {
-  const { speak, stopSpeak, isSpeaking } = useLumi();
+  const { speak, stopSpeak, listen, isSpeaking, isListening } = useLumi();
   const [step, setStep] = useState("story");
   const [micStatus, setMicStatus] = useState("idle");
+  const [voiceHint, setVoiceHint] = useState("");
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -80,10 +87,11 @@ export default function OnboardingStory({ onFinish }) {
   const goToMicStep = () => {
     stopSpeak();
     setStep("mic");
+    setVoiceHint("");
     setTimeout(
       () =>
         speak(
-          "Ahora voy a pedirte permiso para usar el micrófono, solo una vez. Así podrás responder con tu voz en cada simulación, para siempre, sin que vuelva a preguntarte en este dispositivo."
+          "Ahora voy a pedirte permiso para usar el micrófono, solo una vez. Di 'activar', o toca el botón verde. Si prefieres no hacerlo ahora, di 'no'."
         ),
       200
     );
@@ -118,6 +126,38 @@ export default function OnboardingStory({ onFinish }) {
     }
   };
 
+  const handleVoiceError = () => {
+    setVoiceHint("No pude escucharte. Puedes intentar de nuevo o usar los botones.");
+  };
+
+  const listenOnStory = () => {
+    setVoiceHint("");
+    listen((text) => {
+      const n = normalizeAnswer(text);
+      if (CONTINUE_WORDS.some((w) => n.includes(w))) {
+        goToMicStep();
+      } else {
+        setVoiceHint(`Escuché "${text}". Di "continuar" cuando quieras seguir, o toca el botón.`);
+      }
+    }, handleVoiceError);
+  };
+
+  const listenOnMic = () => {
+    setVoiceHint("");
+    listen((text) => {
+      const n = normalizeAnswer(text);
+      if (DECLINE_WORDS.some((w) => n.includes(w))) {
+        finish();
+      } else if (ACCEPT_WORDS.some((w) => n.includes(w))) {
+        requestMic();
+      } else {
+        setVoiceHint(`Escuché "${text}". Di "activar" para encender el micrófono, o "no" para continuar sin él.`);
+      }
+    }, handleVoiceError);
+  };
+
+  const avatarState = isListening ? "listening" : isSpeaking ? "talking" : "happy";
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
@@ -126,13 +166,20 @@ export default function OnboardingStory({ onFinish }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="onboarding-title"
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 text-left max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 text-left max-h-[92vh] overflow-y-auto"
       >
-        <div className="flex items-center gap-3 mb-4">
-          <LumiAvatar size={64} state={isSpeaking ? "talking" : "happy"} />
-          <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
-            {step === "story" ? "Conoce a Lumi" : "Activemos tu voz"}
-          </h2>
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+          <img
+            src={lumiPersonaje}
+            alt="Lumi, científica animada con bata de laboratorio y una tablet con el logo de un átomo, sonriendo y saludando"
+            className="w-32 sm:w-36 h-auto shrink-0"
+          />
+          <div className="flex items-center gap-3">
+            <LumiAvatar size={40} state={avatarState} decorative />
+            <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
+              {step === "story" ? "Conoce a Lumi" : "Activemos tu voz"}
+            </h2>
+          </div>
         </div>
 
         {step === "story" ? (
@@ -151,6 +198,12 @@ export default function OnboardingStory({ onFinish }) {
               </button>
               <button onClick={stopSpeak} className="px-4 py-2 rounded-xl bg-gray-200 text-gray-800">
                 Parar
+              </button>
+              <button
+                onClick={listenOnStory}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold"
+              >
+                <span aria-hidden="true">🎤</span> Responder por voz
               </button>
               <button
                 onClick={goToMicStep}
@@ -174,6 +227,12 @@ export default function OnboardingStory({ onFinish }) {
               >
                 Activar mi voz para siempre
               </button>
+              <button
+                onClick={listenOnMic}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold"
+              >
+                <span aria-hidden="true">🎤</span> Responder por voz
+              </button>
               <button onClick={finish} className="px-4 py-2 rounded-xl bg-gray-200 text-gray-800 sm:ml-auto">
                 {micStatus === "granted" ? "Empezar a explorar" : "Ahora no, continuar sin voz"}
               </button>
@@ -191,6 +250,10 @@ export default function OnboardingStory({ onFinish }) {
             )}
           </>
         )}
+
+        <p aria-live="polite" className="mt-3 text-sm text-blue-700 min-h-[1.25em]">
+          {voiceHint}
+        </p>
       </div>
     </div>
   );

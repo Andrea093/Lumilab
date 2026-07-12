@@ -101,7 +101,7 @@ export const topics = [
     route: null,
     summary:
       "Por qué el calor y la temperatura no son lo mismo, y cómo se transfiere el calor entre objetos.",
-    status: "coming-soon",
+    status: "lesson-only",
   },
 
   // ---------------- 8° - 9° ----------------
@@ -163,7 +163,7 @@ export const topics = [
     route: null,
     summary:
       "Por qué un globo frotado atrae papelitos: una primera aproximación a la carga eléctrica.",
-    status: "coming-soon",
+    status: "lesson-only",
   },
   {
     id: "presion-fluidos",
@@ -178,7 +178,7 @@ export const topics = [
     route: null,
     summary:
       "Por qué flotan los barcos y cómo funciona un gato hidráulico: presión, empuje y principio de Pascal.",
-    status: "coming-soon",
+    status: "lesson-only",
   },
 
   // ---------------- 10° - 11° (cinemática, ya disponible) ----------------
@@ -328,7 +328,7 @@ export const topics = [
     route: null,
     summary:
       "Por qué vemos nuestro reflejo en un espejo y por qué un lápiz parece quebrarse dentro de un vaso con agua.",
-    status: "coming-soon",
+    status: "lesson-only",
   },
 ];
 

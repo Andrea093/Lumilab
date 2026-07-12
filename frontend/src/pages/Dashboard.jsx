@@ -119,22 +119,22 @@ export default function Dashboard() {
             <TopicCard key={topic.id} topic={topic} />
           ))}
 
-          {/* LABORATORIO - PROXIMAMENTE */}
-          <div
-            className="rounded-3xl p-6 bg-gradient-to-br from-gray-100 to-gray-200 border border-dashed border-gray-400"
-            aria-disabled="true"
+          {/* LABORATORIO */}
+          <Link
+            to="/laboratorio"
+            className="group rounded-3xl p-6 bg-gradient-to-br from-violet-100 to-pink-100 border border-violet-300 hover:shadow-xl transition"
           >
             <div className="text-4xl mb-4" aria-hidden="true">🔬</div>
-            <h2 className="text-xl font-bold text-gray-700 mb-1">
+            <h2 className="text-xl font-bold text-violet-800 mb-1">
               Laboratorio Lumilab
             </h2>
             <p className="text-gray-600 text-sm">
-              Experimentos libres, retos multisensoriales y misiones guiadas.
+              Explora todas las simulaciones libremente, con buscador y filtro por tema.
             </p>
-            <span className="inline-block mt-4 text-gray-500 font-semibold">
-              Próximamente
+            <span className="inline-block mt-4 text-violet-600 font-semibold group-hover:underline">
+              Entrar →
             </span>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

@@ -14,6 +14,8 @@ import MCUA from "./pages/MCUA";
 import CaidaLibre from "./pages/CaidaLibre";
 import Ondas from "./pages/Ondas";
 import TopicLesson from "./pages/TopicLesson";
+import Laboratorio from "./pages/Laboratorio";
+import Nosotros from "./pages/Nosotros";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LumiAssistant from "./components/LumiAssistant";
 import SkipLink from "./components/SkipLink";
@@ -35,6 +37,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/registro" element={<Register />} />
+          <Route path="/laboratorio" element={<Laboratorio />} />
+          <Route path="/nosotros" element={<Nosotros />} />
           <Route
             path="/dashboard"
             element={
