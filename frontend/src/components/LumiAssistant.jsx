@@ -19,11 +19,11 @@ const TOPIC_KEYWORDS = [
   { id: "mru", words: ["mru"] },
   { id: "mcua", words: ["mcua", "circular acelerad", "circular con aceleracion"] },
   { id: "mcu", words: ["mcu", "circular", "gira", "giro", "rotacion"] },
-  { id: "caida-libre", words: ["caida libre", "caida", "gravedad", "cae", "caer"] },
+  { id: "caida-libre", words: ["caida libre", "caida", "cae", "caer"] },
   { id: "ondas-sonido", words: ["onda", "sonido", "frecuencia", "amplitud", "vibracion"] },
   {
     id: "leyes-newton",
-    words: ["fuerza", "newton", "inercia", "accion y reaccion", "accion reaccion", "peso", "masa"],
+    words: ["fuerza", "newton", "inercia", "accion y reaccion", "accion reaccion"],
   },
   { id: "dinamica-newton", words: ["friccion", "dinamica", "rozamiento"] },
   { id: "trabajo-potencia", words: ["potencia"] },
@@ -82,6 +82,48 @@ const QUICK_DEFINITIONS = {
     "La luz es una forma de energía que viaja en línea recta y puede reflejarse (rebotar) o refractarse (doblarse) al cambiar de medio.",
 };
 
+// Conceptos base que no son "el resumen de un tema" sino ideas transversales que un
+// estudiante pregunta seguido (gravedad, masa vs. peso, qué es la física). Se revisan
+// antes que los temas puntuales para responder directo, sin desviarse a una lección.
+const STANDALONE_DEFINITIONS = [
+  {
+    words: [
+      "que es lumilab",
+      "para que sirve lumilab",
+      "que hace lumilab",
+      "que es esta pagina",
+      "que es esta plataforma",
+      "de que se trata",
+      "que puedo hacer aqui",
+    ],
+    text: "Lumilab es un laboratorio de física interactivo, pensado para verse, escucharse y sentirse: tiene simuladores con sonido y vibración, lecciones por grado (6° a 11°) y a mí, para explicarte todo por voz. Puedes explorar libremente desde el Laboratorio, o seguir el orden del curso desde Temas por grado.",
+  },
+  {
+    words: ["que es la fisica", "que es fisica", "que estudia la fisica"],
+    text: "La física es la ciencia que estudia la materia, la energía, el movimiento y las fuerzas, y cómo se relacionan entre sí.",
+  },
+  {
+    words: ["que es la ciencia"],
+    text: "La ciencia es una forma de entender el mundo a través de la observación, la experimentación y la evidencia, en vez de solo suposiciones.",
+  },
+  {
+    words: ["gravedad"],
+    text: "La gravedad es la fuerza que atrae a los objetos hacia la Tierra (o entre sí, en general: todo lo que tiene masa atrae a todo lo demás). Puedes verla en acción en el simulador de Caída libre, en el Laboratorio.",
+  },
+  {
+    words: ["que es la masa", "la masa de"],
+    text: "La masa es la cantidad de materia que tiene un objeto. No cambia aunque el objeto cambie de lugar: tu masa es la misma en la Tierra que en la Luna.",
+  },
+  {
+    words: ["que es el peso", "cuanto peso"],
+    text: "El peso es la fuerza con la que la gravedad atrae a un objeto. A diferencia de la masa, el peso sí cambia según dónde estés: en la Luna pesarías menos, aunque tu masa fuera la misma.",
+  },
+  {
+    words: ["atomo", "electron", "proton", "neutron"],
+    text: "Un átomo es la unidad más pequeña de la materia que conserva las propiedades de un elemento. Tiene un núcleo con protones y neutrones, rodeado de electrones.",
+  },
+];
+
 function buildTopicAnswer(topic) {
   const lead = QUICK_DEFINITIONS[topic.id] || topic.summary;
   const where =
@@ -113,6 +155,12 @@ export default function LumiAssistant() {
 
     if (text.includes("no entiendo") || text.includes("ayuda")) {
       return "No te preocupes 🌸 pregúntame por un tema, por ejemplo 'qué es la energía' o 'qué es el movimiento circular', y te explico.";
+    }
+
+    for (const entry of STANDALONE_DEFINITIONS) {
+      if (entry.words.some((w) => text.includes(w))) {
+        return entry.text;
+      }
     }
 
     for (const entry of TOPIC_KEYWORDS) {

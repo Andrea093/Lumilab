@@ -95,6 +95,7 @@ export const topics = [
       "Ya mides cosas todos los días sin llamarlo física: cuando revisas cuánto falta para que termine la clase (tiempo), cuánto pesa tu mochila (masa) o qué tan lejos vives del colegio (longitud). La física solo le pone nombre y precisión a algo que ya sabes hacer.",
     reflectionQuestion:
       "Piensa en tu rutina de esta mañana: ¿qué tres cosas mediste, aunque no te dieras cuenta, y con qué unidad las medirías?",
+    reflectionKeywords: ["tiempo", "distancia", "peso", "medi", "minutos", "metros", "kilometros", "hora"],
     status: "lesson-only",
   },
   {
@@ -119,6 +120,7 @@ export const topics = [
       "Ya conoces los cambios de estado aunque no los llames así: el hielo que se derrite en tu vaso, el vapor que sale de una olla hirviendo, o el rocío que se forma en la mañana sobre el pasto. Todo eso es materia cambiando de estado.",
     reflectionQuestion:
       "¿Recuerdas alguna vez que hayas visto la misma sustancia en dos estados diferentes (por ejemplo, hielo y agua)? Cuéntalo con tus palabras.",
+    reflectionKeywords: ["hielo", "agua", "vapor", "solido", "liquido", "gas", "derriti", "congel"],
     status: "lesson-only",
   },
   {
@@ -143,6 +145,7 @@ export const topics = [
       "Cuando comparas quién llega más rápido a la tienda de la esquina, o calculas si te va a dar tiempo de llegar al colegio caminando, ya estás razonando sobre distancia, tiempo y velocidad, exactamente como lo hace un físico.",
     reflectionQuestion:
       "La próxima vez que camines a algún lugar conocido, fíjate: ¿tu velocidad se mantuvo constante o cambió en el camino? ¿Por qué?",
+    reflectionKeywords: ["constante", "cambio", "acelere", "frene", "rapido", "lento", "velocidad"],
     status: "lesson-only",
   },
   {
@@ -167,6 +170,7 @@ export const topics = [
       "Cuando conectas un cargador, prendes una lámpara o escuchas música, estás presenciando transformaciones de energía. Reconocerlas en objetos cotidianos es exactamente lo que hace un científico cuando estudia la energía.",
     reflectionQuestion:
       "Elige un objeto que uses todos los días (un celular, una licuadora, una bicicleta) y describe qué transformación de energía ocurre cuando lo usas.",
+    reflectionKeywords: ["electric", "calor", "luz", "sonido", "mecanica", "transforma", "energia"],
     status: "lesson-only",
   },
   {
@@ -191,6 +195,7 @@ export const topics = [
       "Cuando tocas una olla y sientes que 'quema', en realidad estás sintiendo el calor pasando de la olla (más caliente) a tu mano (más fría). Ese mismo principio explica por qué un helado se derrite en tu mano y por qué una bebida caliente se enfría si no la tomas rápido.",
     reflectionQuestion:
       "Cuenta una situación reciente en la que hayas sentido el calor pasar de un objeto caliente a uno frío (o al revés). ¿Qué objetos eran?",
+    reflectionKeywords: ["caliente", "frio", "calor", "temperatura", "enfrio", "calento"],
     status: "lesson-only",
   },
 
@@ -217,6 +222,7 @@ export const topics = [
       "Cuando frenas de golpe en un bus y tu cuerpo sigue moviéndose hacia adelante, esa es la primera ley de Newton actuando sobre ti. Cuando pateas un balón, la fuerza que le imprimes lo acelera según su masa (segunda ley), y cuando nadas empujando el agua hacia atrás, el agua te empuja a ti hacia adelante (tercera ley).",
     reflectionQuestion:
       "Piensa en un momento en que sentiste tu cuerpo 'seguir moviéndose' cuando algo frenó de repente (un bus, un carro). ¿Qué ley de Newton explica lo que sentiste?",
+    reflectionKeywords: ["inercia", "primera", "newton", "reposo", "movimiento"],
     status: "lesson-only",
   },
   {
@@ -241,6 +247,7 @@ export const topics = [
       "Cuando subes en bicicleta a un punto alto y luego bajas sin pedalear ganando velocidad, estás viviendo la transformación de energía potencial en energía cinética. Un columpio, un tobogán o una montaña rusa funcionan con el mismo principio.",
     reflectionQuestion:
       "Describe un momento en el que hayas sentido esa transformación de energía (subiendo y luego bajando rápido): ¿en qué actividad fue?",
+    reflectionKeywords: ["potencial", "cinetica", "velocidad", "altura", "energia"],
     status: "lesson-only",
   },
   {
@@ -280,6 +287,7 @@ export const topics = [
       "Ese pequeño 'chispazo' que a veces sientes al tocar una perilla metálica después de caminar sobre una alfombra, o cuando tu cabello se levanta al quitarte un suéter de lana, son electricidad estática en acción: cargas que se acumularon y se mueven de golpe.",
     reflectionQuestion:
       "¿Alguna vez sentiste una pequeña descarga estática o viste tu cabello 'pegarse' a algo? Cuenta qué pasó, con tus palabras.",
+    reflectionKeywords: ["estatica", "carga", "electric", "chispa", "cabello"],
     status: "lesson-only",
   },
   {
@@ -304,6 +312,7 @@ export const topics = [
       "Un barco de acero flota, aunque el acero sea más denso que el agua, porque su forma hueca desplaza mucha agua y genera un empuje grande (Arquímedes). Y cuando usas una jeringa o ves un gato hidráulico levantando un carro, estás viendo el principio de Pascal.",
     reflectionQuestion:
       "¿Por qué crees que un barco de metal flota, pero una moneda de metal se hunde? Explícalo con tus palabras.",
+    reflectionKeywords: ["empuje", "densidad", "flota", "hunde", "arquimedes", "peso", "forma"],
     status: "lesson-only",
   },
 
@@ -403,6 +412,7 @@ export const topics = [
       "Cuando caminas sobre hielo y resbalas, estás sintiendo la falta de fricción. Cuando frenas una bicicleta, la fricción entre las llantas y el piso —y entre los frenos y la rueda— es justamente lo que te permite detenerte.",
     reflectionQuestion:
       "Piensa en una superficie muy resbalosa que hayas pisado (hielo, piso mojado, cerámica con jabón). ¿Cómo cambió tu forma de caminar por la falta de fricción?",
+    reflectionKeywords: ["friccion", "resbala", "cuidado", "lento", "equilibrio", "despacio"],
     status: "lesson-only",
   },
   {
@@ -427,6 +437,7 @@ export const topics = [
       "Subir corriendo unas escaleras requiere más potencia que subirlas caminando lento, aunque el trabajo total (tu peso por la altura que subiste) sea el mismo en ambos casos. Por eso terminas más agitado al subir corriendo: tu cuerpo entregó la misma energía en menos tiempo.",
     reflectionQuestion:
       "Compara subir una escalera corriendo y subirla caminando: ¿en cuál caso crees que desarrollas más potencia, y por qué?",
+    reflectionKeywords: ["potencia", "rapido", "tiempo", "energia", "corriendo"],
     status: "lesson-only",
   },
   {
@@ -451,6 +462,7 @@ export const topics = [
       "La misma fuerza que hace caer una fruta de un árbol es la que mantiene a la Luna orbitando la Tierra, y a la Tierra orbitando el Sol: una sola ley explica fenómenos que parecen completamente distintos, desde una fruta cayendo hasta el movimiento de los planetas.",
     reflectionQuestion:
       "¿Por qué crees que la Luna no se cae sobre la Tierra, si la gravedad la está atrayendo constantemente?",
+    reflectionKeywords: ["orbita", "velocidad", "equilibrio", "gira", "gravedad", "trayectoria"],
     status: "lesson-only",
   },
   {
@@ -475,6 +487,7 @@ export const topics = [
       "Cada vez que prendes un aparato con pilas, estás cerrando un circuito eléctrico simple. Y el hecho de que la electricidad y el magnetismo estén conectados es lo que permite que un motor eléctrico —el de un ventilador, por ejemplo— convierta electricidad en movimiento giratorio.",
     reflectionQuestion:
       "Piensa en un aparato eléctrico que uses seguido: ¿puedes identificar la fuente de energía, el conductor y la carga (lo que usa la energía) en él?",
+    reflectionKeywords: ["pila", "bateria", "cable", "corriente", "enchufe", "circuito"],
     status: "lesson-only",
   },
   {
@@ -499,6 +512,7 @@ export const topics = [
       "Cuando te miras en un espejo, ves reflexión. Cuando metes un pitillo en un vaso con agua y parece quebrado o desplazado en la superficie, estás viendo refracción. Ambos fenómenos los has visto muchas veces sin ponerles nombre.",
     reflectionQuestion:
       "¿Has notado alguna vez que un objeto se ve 'quebrado' o desplazado al meterlo parcialmente en agua? Describe qué viste.",
+    reflectionKeywords: ["agua", "luz", "refraccion", "quebrado", "doblado", "lente", "pitillo"],
     status: "lesson-only",
   },
 ];

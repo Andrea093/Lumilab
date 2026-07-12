@@ -5,6 +5,7 @@ import TopicIllustration from "../components/TopicIllustration";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { getTopicBySlug, THEMES, GRADE_BAND_META } from "../data/topics";
+import { normalizeAnswer } from "../utils/answer";
 
 export default function TopicLesson() {
   const { slug } = useParams();
@@ -12,6 +13,7 @@ export default function TopicLesson() {
   const { speak, stopSpeak, listen } = useLumi();
   const { markStarted, markExerciseResult } = useModuleProgress(topic ? `tema-${topic.slug}` : "tema-desconocido");
   const [reflection, setReflection] = useState("");
+  const [reflectionResult, setReflectionResult] = useState(null); // "matched" | "engaged" | "short" | null
 
   useEffect(() => {
     if (topic) markStarted();
@@ -32,8 +34,27 @@ export default function TopicLesson() {
 
   const handleReflectionAnswer = (res) => {
     setReflection(res);
-    markExerciseResult(true);
-    speak(`Gracias por tu reflexión: '${res}'. Sigue explorando este tema con tu profesor o profesora.`);
+    const normalized = normalizeAnswer(res);
+    const keywords = topic.reflectionKeywords || [];
+    const matched = keywords.some((k) => normalized.includes(normalizeAnswer(k)));
+    const wordCount = res.trim().split(/\s+/).filter(Boolean).length;
+
+    let message;
+    if (matched) {
+      setReflectionResult("matched");
+      message = `¡Muy bien! Tu respuesta va bien encaminada. ${topic.connection || ""}`;
+    } else if (wordCount >= 3) {
+      setReflectionResult("engaged");
+      message = `Gracias por tu reflexión. Te cuento un poco más para completarla: ${
+        topic.connection || topic.summary
+      }`;
+    } else {
+      setReflectionResult("short");
+      message = `Intenta contar un poco más. Una pista: ${topic.connection || topic.summary}`;
+    }
+
+    markExerciseResult(matched);
+    speak(message);
   };
 
   return (
@@ -137,9 +158,26 @@ export default function TopicLesson() {
                 </button>
               </div>
 
-              <p aria-live="polite" className="mt-3 font-medium text-purple-700 min-h-[1.5em]">
-                {reflection && `Tu respuesta: "${reflection}"`}
-              </p>
+              {reflection && (
+                <div aria-live="polite" className="mt-3 space-y-1">
+                  <p className="font-medium text-gray-700">Tu respuesta: "{reflection}"</p>
+                  {reflectionResult === "matched" && (
+                    <p className="font-semibold text-emerald-700">
+                      ✓ Vas bien encaminado — mencionaste la idea clave.
+                    </p>
+                  )}
+                  {reflectionResult === "engaged" && (
+                    <p className="font-semibold text-amber-700">
+                      💭 Buen intento — escucha la explicación para completar la idea.
+                    </p>
+                  )}
+                  {reflectionResult === "short" && (
+                    <p className="font-semibold text-amber-700">
+                      ✏️ Intenta responder con un poco más de detalle.
+                    </p>
+                  )}
+                </div>
+              )}
             </section>
 
             <Link to="/temas" className="inline-block text-violet-700 font-semibold hover:underline">
