@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useAccessibility } from "../context/AccessibilityContext";
 import lumiPersonaje from "../assets/lumi-personaje.png";
 
@@ -13,30 +13,28 @@ const STATE_LABELS = {
 const STATE_CLASS = {
   idle: "lumi-char-idle",
   talking: "lumi-char-talking",
-  listening: "lumi-char-listening",
-  happy: "lumi-char-happy",
-  thinking: "lumi-char-thinking",
+  listening: "lumi-char-talking",
+  happy: "lumi-char-talking",
+  thinking: "lumi-char-idle",
 };
 
 const SHADOW_CLASS = {
   idle: "lumi-shadow-idle",
   talking: "lumi-shadow-talking",
-  listening: "lumi-shadow-listening",
-  happy: "lumi-shadow-happy",
-  thinking: "lumi-shadow-thinking",
+  listening: "lumi-shadow-talking",
+  happy: "lumi-shadow-talking",
+  thinking: "lumi-shadow-idle",
 };
 
 // Lumi, la científica ilustrada: reemplaza el ícono SVG en todos los lugares donde
-// acompaña al estudiante. Un solo retrato se anima con squash&stretch suave (sin
-// giros) y una sombra en el piso que se encoge cuando "sube" y crece cuando "baja",
-// la técnica clásica de mascotas de videojuego para dar sensación de peso real sin
-// necesitar varias poses dibujadas. El retraso de animación se aleatoriza un poco
-// por instancia para que no se vea como un bucle robótico sincronizado.
+// acompaña al estudiante. Un solo movimiento simple y siempre igual: en reposo
+// respira suavemente, y en cuanto habla (incluye escuchar/contenta, que también
+// hablan al reaccionar) hace el mismo gesto de "hablar" cada vez, sin variaciones
+// ni aleatoriedad — fácil de reconocer y predecible.
 export default function LumiCharacter({ height = 96, state = "idle", decorative = false, alt, className = "" }) {
   const { reduceMotion } = useAccessibility();
   const animClass = reduceMotion ? "" : STATE_CLASS[state] || STATE_CLASS.idle;
   const shadowClass = reduceMotion ? "" : SHADOW_CLASS[state] || SHADOW_CLASS.idle;
-  const delay = useMemo(() => `${-(Math.random() * 1.5).toFixed(2)}s`, []);
 
   return (
     <span
@@ -56,14 +54,14 @@ export default function LumiCharacter({ height = 96, state = "idle", decorative 
       <span
         aria-hidden="true"
         className={`absolute left-1/2 rounded-full bg-black/25 blur-[2px] ${shadowClass}`}
-        style={{ bottom: "-4%", width: "46%", height: "8%", marginLeft: "-23%", animationDelay: delay }}
+        style={{ bottom: "-4%", width: "46%", height: "8%", marginLeft: "-23%" }}
       />
       <img
         src={lumiPersonaje}
         alt=""
         aria-hidden="true"
         className={animClass}
-        style={{ height: "100%", width: "auto", display: "block", transformOrigin: "bottom center", animationDelay: delay }}
+        style={{ height: "100%", width: "auto", display: "block", transformOrigin: "bottom center" }}
       />
     </span>
   );
