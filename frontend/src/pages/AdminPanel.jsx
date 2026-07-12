@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
+import LumiGuide from "../components/LumiGuide";
 
 const ROLE_LABELS = {
   student: "Estudiante",
@@ -301,6 +302,13 @@ export default function AdminPanel() {
           <p className="text-gray-600">
             Restablece contraseñas, edita datos de estudiantes y administra cuentas docentes.
           </p>
+        </div>
+
+        <div className="mb-6">
+          <LumiGuide
+            greeting="Hola, soy Lumi. Aquí puedes restablecer contraseñas, editar datos de estudiantes y crear o eliminar cuentas docentes."
+            text="Este es el panel de administración de Lumilab."
+          />
         </div>
 
         <CreateTeacherForm token={token} onCreated={load} />

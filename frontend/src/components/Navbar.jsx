@@ -36,11 +36,11 @@ export default function Navbar() {
           <img
             src={logoLumilab}
             alt="Lumilab"
-            className="w-36 md:w-52 h-auto object-contain"
+            className="w-36 lg:w-52 h-auto object-contain"
           />
 
           {/* SLOGAN SOLO EN DESKTOP */}
-          <div className="hidden md:block leading-tight">
+          <div className="hidden lg:block leading-tight">
             <div className="font-extrabold text-lg text-gray-900">
               Lumilab
             </div>
@@ -53,7 +53,7 @@ export default function Navbar() {
         {/* BOTÓN HAMBURGUESA (MOBILE) */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-2xl"
+          className="lg:hidden text-2xl"
           aria-expanded={menuOpen}
           aria-controls="navbar-mobile-menu"
           aria-label={menuOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
@@ -62,7 +62,7 @@ export default function Navbar() {
         </button>
 
         {/* NAV DESKTOP */}
-        <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-6 text-gray-700 font-medium">
+        <nav aria-label="Navegación principal" className="hidden lg:flex items-center gap-4 xl:gap-6 text-gray-700 font-medium">
 
           {/* SIMULADORES */}
           <div className="relative">
@@ -134,7 +134,7 @@ export default function Navbar() {
 
       {/* NAV MOBILE */}
       {menuOpen && (
-        <div id="navbar-mobile-menu" className="md:hidden bg-white border-t px-4 py-4 space-y-3">
+        <div id="navbar-mobile-menu" className="lg:hidden bg-white border-t px-4 py-4 space-y-3">
 
           <button
             onClick={() => setSimOpen(!simOpen)}

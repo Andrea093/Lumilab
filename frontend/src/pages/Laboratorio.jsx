@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { topics, THEMES } from "../data/topics";
+import LumiGuide from "../components/LumiGuide";
 
 const THEME_ICONS = {
   mediciones: "📏",
@@ -45,6 +46,13 @@ export default function Laboratorio() {
             Explora libremente todas las simulaciones de Lumilab, sin pasar por el orden de
             grados. Busca por nombre o filtra por tema.
           </p>
+        </div>
+
+        <div className="mb-6">
+          <LumiGuide
+            greeting="Hola, soy Lumi. Este es el laboratorio: explora cualquier simulación libremente, todas se ven, se escuchan y se sienten."
+            text="Bienvenido al laboratorio interactivo de Lumilab."
+          />
         </div>
 
         {/* BANNER ACCESIBILIDAD */}

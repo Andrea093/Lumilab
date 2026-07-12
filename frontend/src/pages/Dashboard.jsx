@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { GRADE_BANDS, getTopicsByGradeBand } from "../data/topics";
+import LumiGuide from "../components/LumiGuide";
+import { useAuth } from "../context/AuthContext";
 
 const THEME_ICONS = {
   mediciones: "📏",
@@ -68,6 +70,7 @@ function TopicCard({ topic }) {
 export default function Dashboard() {
   const [gradeBand, setGradeBand] = useState("all");
   const visibleTopics = getTopicsByGradeBand(gradeBand);
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 p-6">
@@ -82,6 +85,13 @@ export default function Dashboard() {
             Explora los módulos interactivos de física, de grado 6° a 11°, según los estándares del MEN.
             Cada experiencia está pensada para aprender viendo, escuchando y sintiendo.
           </p>
+        </div>
+
+        <div className="mb-8">
+          <LumiGuide
+            greeting={`Hola${user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}. Soy Lumi. Elige un tema de la lista para empezar a explorar.`}
+            text="Hola, soy Lumi. Elige un tema para empezar."
+          />
         </div>
 
         {/* FILTRO POR GRADO */}
