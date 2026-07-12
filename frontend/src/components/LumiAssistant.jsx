@@ -1,44 +1,82 @@
 import React, { useState } from "react";
 import LumiCharacter from "./LumiCharacter";
 import useLumi from "../hooks/useLumi";
+import { topics } from "../data/topics";
+
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .trim();
+}
+
+// Palabras clave -> id de tema (data/topics.js). El orden importa: entradas mas
+// especificas primero, para que "mrua" no quede atrapada por una regla generica
+// de "movimiento" antes de llegar a su propia regla.
+const TOPIC_KEYWORDS = [
+  { id: "mrua", words: ["mrua"] },
+  { id: "mru", words: ["mru"] },
+  { id: "mcua", words: ["mcua"] },
+  { id: "mcu", words: ["mcu"] },
+  { id: "caida-libre", words: ["caida libre", "caida", "gravedad", "cae", "caer"] },
+  { id: "ondas-sonido", words: ["onda", "sonido", "frecuencia", "amplitud"] },
+  { id: "leyes-newton", words: ["newton", "inercia", "accion y reaccion", "accion reaccion"] },
+  { id: "dinamica-newton", words: ["friccion", "dinamica", "rozamiento"] },
+  { id: "trabajo-potencia", words: ["potencia"] },
+  { id: "trabajo-energia-mecanica", words: ["trabajo", "energia cinetica", "energia potencial", "columpio"] },
+  { id: "formas-de-energia", words: ["transformacion de energia", "energia"] },
+  { id: "calor-temperatura", words: ["calor", "temperatura"] },
+  { id: "estados-materia", words: ["estado de la materia", "solido", "liquido", "gas", "densidad"] },
+  { id: "magnitudes-unidades", words: ["magnitud", "unidad", "medir", "medicion"] },
+  { id: "movimiento-basico", words: ["movimiento", "distancia", "velocidad"] },
+  { id: "electricidad-estatica", words: ["estatica", "carga electrica", "electrizacion"] },
+  { id: "electricidad-magnetismo", words: ["electricidad", "circuito", "corriente", "magnetismo", "iman"] },
+  { id: "presion-fluidos", words: ["presion", "fluido", "flota", "empuje", "arquimedes", "pascal", "hidraulico"] },
+  { id: "gravitacion-universal", words: ["planeta", "orbita", "satelite", "gravitacion"] },
+  { id: "optica-geometrica", words: ["luz", "reflexion", "refraccion", "espejo", "lente", "optica"] },
+];
+
+function buildTopicAnswer(topic) {
+  const where =
+    topic.status === "available"
+      ? "Tiene simulador interactivo: lo encuentras en el Laboratorio."
+      : "Puedes leer la lección completa en Temas por grado.";
+  return `${topic.summary} ${where}`;
+}
 
 export default function LumiAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "lumi", text: "Hola 😊 Soy Lumi. ¿En qué te ayudo hoy?" },
+    { from: "lumi", text: "Hola 😊 Soy Lumi. Pregúntame sobre cualquier tema, por ejemplo 'qué es la fuerza' o 'qué es el calor'." },
   ]);
   const { speak, listen, isSpeaking, isListening } = useLumi();
 
   /* ---------------- RESPUESTAS ---------------- */
 
   const getResponse = (input) => {
-    const text = input.toLowerCase();
+    const text = normalize(input);
 
     if (text.includes("hola")) {
-      return "Hola 💜 ¿Qué módulo estás explorando?";
+      return "Hola 💜 ¿Qué tema estás explorando?";
     }
 
-    if (text.includes("mru")) {
-      return "El MRU es un movimiento con velocidad constante y sin aceleración.";
-    }
-
-    if (text.includes("mrua")) {
-      return "En el MRUA la velocidad cambia porque hay aceleración constante.";
-    }
-
-    if (text.includes("mcu")) {
-      return "El MCU es un movimiento circular donde la rapidez es constante.";
-    }
-
-    if (text.includes("mcua")) {
-      return "El MCUA ocurre cuando el movimiento circular tiene aceleración angular.";
+    if (text.includes("gracias")) {
+      return "¡Con gusto! 💜 Aquí estoy si necesitas algo más.";
     }
 
     if (text.includes("no entiendo") || text.includes("ayuda")) {
-      return "No te preocupes 🌸 dime qué parte te confunde y lo vemos paso a paso.";
+      return "No te preocupes 🌸 pregúntame por un tema, por ejemplo 'qué es la energía' o 'qué es el movimiento circular', y te explico.";
     }
 
-    return "Interesante 🤔 ¿Quieres que te lo explique de otra forma?";
+    for (const entry of TOPIC_KEYWORDS) {
+      if (entry.words.some((w) => text.includes(w))) {
+        const topic = topics.find((t) => t.id === entry.id);
+        if (topic) return buildTopicAnswer(topic);
+      }
+    }
+
+    return "No estoy segura de haber entendido 🤔 Pregúntame por un tema (ej. 'qué es la gravedad'), o dime 'ayuda'.";
   };
 
   const handleSend = (text) => {

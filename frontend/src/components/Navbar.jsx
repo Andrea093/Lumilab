@@ -81,6 +81,9 @@ export default function Navbar() {
               <Link onClick={closeAll} to="/laboratorio" className="block font-semibold text-gray-800 hover:text-violet-600">
                 Laboratorio
               </Link>
+              <Link onClick={closeAll} to="/temas" className="block font-semibold text-gray-800 hover:text-violet-600">
+                Temas por grado
+              </Link>
               <Link onClick={closeAll} to="/nosotros" className="block font-semibold text-gray-800 hover:text-violet-600">
                 Nosotros
               </Link>
@@ -150,7 +153,7 @@ function SimLinks({ close }) {
         Ondas y sonido
       </Link>
       <div className="border-t mt-2 pt-2">
-        <Link onClick={close} to="/dashboard" className="block text-sm text-gray-500 hover:text-violet-600">
+        <Link onClick={close} to="/temas" className="block text-sm text-gray-500 hover:text-violet-600">
           Ver todos los temas (6° a 11°) →
         </Link>
       </div>

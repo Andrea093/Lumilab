@@ -9,7 +9,7 @@ export default function TopicLesson() {
   const { slug } = useParams();
   const topic = getTopicBySlug(slug);
   const { speak, stopSpeak, listen } = useLumi();
-  const { markStarted } = useModuleProgress(topic ? `tema-${topic.slug}` : "tema-desconocido");
+  const { markStarted, markExerciseResult } = useModuleProgress(topic ? `tema-${topic.slug}` : "tema-desconocido");
   const [reflection, setReflection] = useState("");
 
   useEffect(() => {
@@ -18,13 +18,19 @@ export default function TopicLesson() {
   }, [topic?.slug]);
 
   if (!topic) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/temas" replace />;
   }
 
-  const fullExplanation = `${topic.summary} Estándar del MEN: ${topic.menStandard}`;
+  const hasRichContent = Array.isArray(topic.content) && topic.content.length > 0;
+  const fullExplanation = hasRichContent
+    ? `${topic.summary} ${topic.content.join(" ")} ${topic.connection || ""}`
+    : `${topic.summary} Estándar del MEN: ${topic.menStandard}`;
+  const reflectionQuestion =
+    topic.reflectionQuestion || `¿Qué ejemplo de tu vida diaria se relaciona con ${topic.title.toLowerCase()}?`;
 
   const handleReflectionAnswer = (res) => {
     setReflection(res);
+    markExerciseResult(true);
     speak(`Gracias por tu reflexión: '${res}'. Sigue explorando este tema con tu profesor o profesora.`);
   };
 
@@ -34,8 +40,8 @@ export default function TopicLesson() {
 
       <div className="mt-6 space-y-6">
         <nav aria-label="Miga de pan" className="text-sm text-gray-500">
-          <Link to="/dashboard" className="hover:underline">
-            Panel Lumilab
+          <Link to="/temas" className="hover:underline">
+            Temas por grado
           </Link>{" "}
           / {THEMES[topic.theme] || topic.theme}
         </nav>
@@ -46,17 +52,21 @@ export default function TopicLesson() {
             Grado {topic.grades.join("° y ")}° · {THEMES[topic.theme] || topic.theme}
           </p>
 
-          <p className="text-gray-800">{topic.summary}</p>
-          <p className="text-sm text-gray-600 mt-3 italic">
-            Estándar MEN: {topic.menStandard}
-          </p>
+          <p className="text-gray-800 font-medium">{topic.summary}</p>
+
+          {hasRichContent && (
+            <div className="mt-4 space-y-3 text-gray-700">
+              {topic.content.map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
+          )}
+
+          <p className="text-sm text-gray-600 mt-4 italic">Estándar MEN: {topic.menStandard}</p>
 
           <div className="flex gap-2 mt-4">
-            <button
-              className="bg-purple-600 text-white px-3 py-2 rounded"
-              onClick={() => speak(fullExplanation)}
-            >
-              Escuchar explicación
+            <button className="bg-purple-600 text-white px-3 py-2 rounded" onClick={() => speak(fullExplanation)}>
+              Escuchar explicación completa
             </button>
             <button className="bg-gray-300 px-3 py-2 rounded" onClick={stopSpeak}>
               Parar
@@ -64,15 +74,28 @@ export default function TopicLesson() {
           </div>
         </section>
 
+        {topic.connection && (
+          <section className="bg-white p-5 rounded-xl shadow border-l-4 border-emerald-400">
+            <h2 className="text-emerald-700 font-bold text-lg">🔗 Conecta con lo que ya sabes</h2>
+            <p className="text-gray-700 mt-2">{topic.connection}</p>
+            <button
+              className="mt-3 bg-emerald-600 text-white px-3 py-2 rounded text-sm"
+              onClick={() => speak(topic.connection)}
+            >
+              Escuchar
+            </button>
+          </section>
+        )}
+
         <section className="bg-white p-5 rounded-xl shadow">
           <h2 className="text-purple-700 font-bold text-xl">🌱 Reflexiona</h2>
-          <p>¿Qué ejemplo de tu vida diaria se relaciona con {topic.title.toLowerCase()}?</p>
+          <p>{reflectionQuestion}</p>
 
           <div className="flex gap-2 mt-3">
-            <button
-              className="bg-blue-600 text-white px-3 py-2 rounded"
-              onClick={() => listen(handleReflectionAnswer)}
-            >
+            <button className="bg-purple-500 text-white px-3 py-2 rounded" onClick={() => speak(reflectionQuestion)}>
+              Escuchar pregunta
+            </button>
+            <button className="bg-blue-600 text-white px-3 py-2 rounded" onClick={() => listen(handleReflectionAnswer)}>
               Responder por voz
             </button>
             <button className="bg-gray-300 px-3 py-2 rounded" onClick={stopSpeak}>
@@ -85,8 +108,8 @@ export default function TopicLesson() {
           </p>
         </section>
 
-        <Link to="/dashboard" className="inline-block text-violet-700 font-semibold hover:underline">
-          ← Volver al panel
+        <Link to="/temas" className="inline-block text-violet-700 font-semibold hover:underline">
+          ← Volver a temas por grado
         </Link>
       </div>
     </div>

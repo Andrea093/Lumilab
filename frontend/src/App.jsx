@@ -6,6 +6,7 @@ import OnboardingStory, { hasSeenOnboarding } from "./components/OnboardingStory
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Temas from "./pages/Temas";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminPanel from "./pages/AdminPanel";
 import MRU from "./pages/MRU";
@@ -45,6 +46,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/temas"
+            element={
+              <ProtectedRoute>
+                <Temas />
               </ProtectedRoute>
             }
           />
