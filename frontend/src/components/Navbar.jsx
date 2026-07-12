@@ -10,6 +10,7 @@ export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const isTeacher = user?.role === "teacher" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
 
   const closeAll = () => {
     setMenuOpen(false);
@@ -95,6 +96,12 @@ export default function Navbar() {
             </Link>
           )}
 
+          {isAdmin && (
+            <Link to="/admin" className="px-4 py-2 rounded-lg hover:bg-gray-100 font-semibold text-violet-700">
+              Administración
+            </Link>
+          )}
+
           <AccessibilityPanel />
 
           {isAuthenticated ? (
@@ -154,6 +161,12 @@ export default function Navbar() {
           {isTeacher && (
             <Link onClick={closeAll} to="/panel-docente" className="block font-semibold text-violet-700">
               Panel docente
+            </Link>
+          )}
+
+          {isAdmin && (
+            <Link onClick={closeAll} to="/admin" className="block font-semibold text-violet-700">
+              Administración
             </Link>
           )}
 

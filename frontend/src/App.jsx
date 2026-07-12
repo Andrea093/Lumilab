@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import AdminPanel from "./pages/AdminPanel";
 import MRU from "./pages/MRU";
 import MRUA from "./pages/MRUA";
 import MCU from "./pages/MCU";
@@ -100,6 +101,14 @@ export default function App() {
             element={
               <ProtectedRoute roles={["teacher", "admin"]}>
                 <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute roles={["admin"]}>
+                <AdminPanel />
               </ProtectedRoute>
             }
           />

@@ -29,4 +29,11 @@ export const api = {
     request(`/progress/${moduleKey}`, { method: "PUT", body: payload, token }),
   getTeacherStudents: (token, grade) =>
     request(`/teacher/students${grade ? `?grade=${grade}` : ""}`, { token }),
+  getAdminUsers: (token) => request("/admin/users", { token }),
+  createTeacher: (token, payload) => request("/admin/users", { method: "POST", body: payload, token }),
+  updateAdminUser: (token, id, payload) =>
+    request(`/admin/users/${id}`, { method: "PUT", body: payload, token }),
+  resetUserPassword: (token, id, newPassword) =>
+    request(`/admin/users/${id}/password`, { method: "PUT", body: { newPassword }, token }),
+  deleteTeacher: (token, id) => request(`/admin/users/${id}`, { method: "DELETE", token }),
 };
