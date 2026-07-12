@@ -2,7 +2,10 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 
 const AccessibilityContext = createContext(null);
 
-const STORAGE_KEY = "lumilab_accessibility";
+// v2: se cambia la clave a propósito para que quienes ya tenían guardado
+// audioDescriptionsAlwaysOn=false (de cuando ese valor no hacía nada) reciban
+// el nuevo valor por defecto (true) en vez de arrastrar la preferencia vieja.
+const STORAGE_KEY = "lumilab_accessibility_v2";
 const FONT_SCALES = [1, 1.15, 1.3, 1.5];
 
 function loadInitialState() {
