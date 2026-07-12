@@ -25,6 +25,25 @@ export function AuthProvider({ children }) {
     }
   }, [auth]);
 
+  // Al cargar la app, refresca los datos del usuario (rol incluido) desde el servidor:
+  // así un cambio de rol (ej. a admin) se refleja al recargar, sin exigir cerrar sesión.
+  useEffect(() => {
+    if (!auth.token) return;
+    let cancelled = false;
+    api
+      .me(auth.token)
+      .then((data) => {
+        if (!cancelled) setAuth((a) => ({ ...a, user: data.user }));
+      })
+      .catch(() => {
+        if (!cancelled) setAuth({ user: null, token: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const register = useCallback(async (payload) => {
     setLoading(true);
     setError(null);
