@@ -181,7 +181,11 @@ textarea:focus-visible,
   outline: 3px solid #000000;
 }
 
-/* reducir movimiento */
+/* Reducir movimiento: controlado únicamente por el interruptor de la app (panel de
+   Accesibilidad), que ya toma como valor inicial la preferencia del sistema operativo
+   (prefers-reduced-motion) la primera vez que se visita el sitio. No se duplica aquí
+   con un @media directo, porque eso ignoraría por completo lo que la persona elija en
+   el interruptor: el navegador seguiría forzando "sin movimiento" pase lo que pase. */
 :root[data-motion="reduce"] *,
 :root[data-motion="reduce"] *::before,
 :root[data-motion="reduce"] *::after {
@@ -189,15 +193,4 @@ textarea:focus-visible,
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
 }
