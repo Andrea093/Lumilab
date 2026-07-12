@@ -102,7 +102,7 @@ function CreateTeacherForm({ token, onCreated }) {
   );
 }
 
-function UserRow({ user, token, onChanged, currentUserId }) {
+function UserRow({ user, token, onChanged, onDeleted, currentUserId }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     fullName: user.full_name,
@@ -156,6 +156,7 @@ function UserRow({ user, token, onChanged, currentUserId }) {
     setBusy(true);
     try {
       await api.deleteUser(token, user.id);
+      onDeleted?.(user.full_name);
       onChanged();
     } catch (err) {
       setError(err.message);
@@ -200,6 +201,17 @@ function UserRow({ user, token, onChanged, currentUserId }) {
           )}
         </div>
       </div>
+
+      {error && (
+        <p role="alert" className="text-sm text-red-600 mt-3">
+          {error}
+        </p>
+      )}
+      {status && !editing && (
+        <p role="status" className="text-sm text-emerald-700 mt-3">
+          {status}
+        </p>
+      )}
 
       {editing && (
         <div className="mt-4 border-t pt-4 space-y-4">
@@ -260,11 +272,6 @@ function UserRow({ user, token, onChanged, currentUserId }) {
             </button>
           </div>
 
-          {error && (
-            <p role="alert" className="text-sm text-red-600">
-              {error}
-            </p>
-          )}
           {status && (
             <p role="status" className="text-sm text-emerald-700">
               {status}
@@ -281,6 +288,11 @@ export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletedMessage, setDeletedMessage] = useState("");
+
+  const handleDeleted = (name) => {
+    setDeletedMessage(`✓ Cuenta eliminada: ${name}.`);
+  };
 
   const load = () => {
     setLoading(true);
@@ -319,10 +331,22 @@ export default function AdminPanel() {
             {error}
           </p>
         )}
+        {deletedMessage && (
+          <p role="status" className="text-emerald-700 font-medium mb-4">
+            {deletedMessage}
+          </p>
+        )}
 
         <div className="space-y-3">
           {users.map((u) => (
-            <UserRow key={u.id} user={u} token={token} onChanged={load} currentUserId={currentUser?.id} />
+            <UserRow
+              key={u.id}
+              user={u}
+              token={token}
+              onChanged={load}
+              onDeleted={handleDeleted}
+              currentUserId={currentUser?.id}
+            />
           ))}
         </div>
       </div>

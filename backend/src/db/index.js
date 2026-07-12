@@ -20,5 +20,10 @@ if (env.tursoUrl) {
 
 export const db = createClient(clientConfig);
 
+// Sin esto, SQLite/libSQL no exige ni aplica las claves foraneas (viene apagado por
+// defecto): borrar un usuario no borraria en cascada su progreso, dejando filas
+// huerfanas en module_progress.
+await db.execute("PRAGMA foreign_keys = ON;");
+
 const migrationPath = resolve(import.meta.dirname, "migrations", "001_init.sql");
 await db.executeMultiple(readFileSync(migrationPath, "utf8"));

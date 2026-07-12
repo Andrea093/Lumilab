@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useAccessibility } from "../context/AccessibilityContext";
 import lumiPersonaje from "../assets/lumi-personaje.png";
 import lumiVideo from "../assets/lumi-video.mp4";
@@ -38,6 +38,18 @@ export default function LumiCharacter({ height = 96, state = "idle", decorative 
   const animClass = reduceMotion ? "" : STATE_CLASS[state] || STATE_CLASS.idle;
   const shadowClass = reduceMotion ? "" : SHADOW_CLASS[state] || SHADOW_CLASS.idle;
   const showVideo = state === "talking" && !reduceMotion;
+  const videoRef = useRef(null);
+
+  // React no siempre sincroniza la propiedad `muted` a tiempo para que el navegador
+  // permita el autoplay; se fuerza por ref para que el video realmente se reproduzca
+  // en vez de quedarse congelado.
+  useEffect(() => {
+    if (!showVideo || !videoRef.current) return;
+    const v = videoRef.current;
+    v.muted = true;
+    const playPromise = v.play();
+    if (playPromise?.catch) playPromise.catch(() => {});
+  }, [showVideo]);
 
   return (
     <span
@@ -61,13 +73,16 @@ export default function LumiCharacter({ height = 96, state = "idle", decorative 
       />
       {showVideo ? (
         <video
+          ref={videoRef}
           src={lumiVideo}
+          poster={lumiPersonaje}
           muted
           loop
           autoPlay
           playsInline
+          preload="auto"
           aria-hidden="true"
-          style={{ height: "100%", width: "auto", display: "block", borderRadius: "8%" }}
+          style={{ height: "100%", width: "auto", display: "block", borderRadius: "8%", objectFit: "cover" }}
         />
       ) : (
         <img
