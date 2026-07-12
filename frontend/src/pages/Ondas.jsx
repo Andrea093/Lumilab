@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import LumiGuide from "../components/LumiGuide";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
@@ -6,6 +6,25 @@ import { answerMatches, normalizeAnswer } from "../utils/answer";
 import { playTone, vibratePattern } from "../utils/sound";
 
 const SOUND_SPEED = 343; // m/s, velocidad del sonido en el aire
+const WAVE_WIDTH = 300;
+const WAVE_HEIGHT = 60;
+
+// Dibuja una onda senoidal real (no una línea recta) con "cycles" crestas completas
+// a lo largo de WAVE_WIDTH, usando curvas suaves.
+function buildWavePath(cycles) {
+  const amplitude = WAVE_HEIGHT * 0.35;
+  const mid = WAVE_HEIGHT / 2;
+  const step = WAVE_WIDTH / cycles;
+  let d = `M0 ${mid}`;
+  for (let i = 0; i < cycles; i++) {
+    const x0 = i * step;
+    const xHalf = x0 + step / 2;
+    const x1 = x0 + step;
+    d += ` Q ${x0 + step / 4} ${mid - amplitude}, ${xHalf} ${mid}`;
+    d += ` Q ${xHalf + step / 4} ${mid + amplitude}, ${x1} ${mid}`;
+  }
+  return d;
+}
 
 /* ================= ONDAS Y SONIDO ================= */
 export default function Ondas() {
@@ -16,7 +35,6 @@ export default function Ondas() {
   /* ---------- SIMULACIÓN ---------- */
   const [frequency, setFrequency] = useState(440); // Hz
   const [soundOn, setSoundOn] = useState(false);
-  const waveRef = useRef(null);
 
   const audioCtx = useRef(null);
   const osc = useRef(null);
@@ -24,6 +42,11 @@ export default function Ondas() {
   const pulseInterval = useRef(null);
 
   const wavelength = SOUND_SPEED / frequency;
+
+  // más frecuencia = más crestas visibles y desplazamiento más rápido, igual que el pulso sonoro
+  const cycles = Math.max(2, Math.min(10, Math.round(frequency / 110)));
+  const wavePath = useMemo(() => buildWavePath(cycles), [cycles]);
+  const waveDurationSeconds = Math.max(0.15, 1000 / frequency);
 
   const startSound = () => {
     if (soundOn) return;
@@ -90,13 +113,6 @@ export default function Ondas() {
     };
   }, [frequency, soundOn]);
 
-  useEffect(() => {
-    if (waveRef.current) {
-      // más frecuencia = ciclos más juntos, animación visual simple vía duración de la transición
-      waveRef.current.style.setProperty("--wave-speed", `${Math.max(0.15, 1000 / frequency)}s`);
-    }
-  }, [frequency]);
-
   /* ---------- EJERCICIOS ---------- */
   const exercises = [
     {
@@ -158,17 +174,37 @@ export default function Ondas() {
             <h2 className="font-bold text-purple-700">🎵 Simulación</h2>
 
             <div
-              ref={waveRef}
-              className="relative h-24 bg-gray-100 rounded mt-3 overflow-hidden flex items-center justify-center"
+              className="relative h-24 bg-gray-100 rounded mt-3 overflow-hidden"
               aria-hidden="true"
             >
-              <div
-                className="w-full h-1 bg-purple-500"
-                style={{
-                  backgroundImage:
-                    "repeating-linear-gradient(90deg, #7c3aed 0 2px, transparent 2px 12px)",
-                }}
-              />
+              <svg
+                viewBox={`0 0 ${WAVE_WIDTH} ${WAVE_HEIGHT}`}
+                preserveAspectRatio="none"
+                className="w-full h-full"
+              >
+                <g>
+                  <path d={wavePath} stroke="#7c3aed" strokeWidth="3" fill="none" strokeLinecap="round" />
+                  <path
+                    d={wavePath}
+                    transform={`translate(${WAVE_WIDTH},0)`}
+                    stroke="#7c3aed"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  {soundOn && (
+                    <animateTransform
+                      attributeName="transform"
+                      attributeType="XML"
+                      type="translate"
+                      from="0 0"
+                      to={`-${WAVE_WIDTH} 0`}
+                      dur={`${waveDurationSeconds}s`}
+                      repeatCount="indefinite"
+                    />
+                  )}
+                </g>
+              </svg>
             </div>
             <p className="sr-only" role="status">
               {soundOn

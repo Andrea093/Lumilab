@@ -4,14 +4,19 @@ export async function createUser({ fullName, role = "student", grade, documentId
   const result = await db.execute({
     sql: `INSERT INTO users (full_name, role, grade, document_id, email, password_hash)
           VALUES (?, ?, ?, ?, ?, ?)`,
-    args: [fullName, role, grade ?? null, documentId ?? null, email ?? null, passwordHash],
+    args: [fullName, role, grade ?? null, documentId ?? null, email ? email.trim().toLowerCase() : null, passwordHash],
   });
   return findById(Number(result.lastInsertRowid));
 }
 
+// El correo se busca sin distinguir mayusculas/minusculas: nadie deberia fallar el
+// login por escribir "Nombre@Correo.com" en vez de "nombre@correo.com".
 export async function findByEmail(email) {
   if (!email) return undefined;
-  const result = await db.execute({ sql: "SELECT * FROM users WHERE email = ?", args: [email] });
+  const result = await db.execute({
+    sql: "SELECT * FROM users WHERE lower(email) = lower(?)",
+    args: [email.trim()],
+  });
   return result.rows[0];
 }
 

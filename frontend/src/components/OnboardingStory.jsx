@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import LumiAvatar from "./LumiAvatar";
+import LumiCharacter from "./LumiCharacter";
 import useLumi from "../hooks/useLumi";
 import { normalizeAnswer } from "../utils/answer";
-import lumiPersonaje from "../assets/lumi-personaje.png";
 
 const SEEN_KEY = "lumilab_onboarding_seen";
 const MIC_KEY = "lumilab_mic_primed";
@@ -169,17 +168,15 @@ export default function OnboardingStory({ onFinish }) {
         className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 text-left max-h-[92vh] overflow-y-auto"
       >
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-          <img
-            src={lumiPersonaje}
+          <LumiCharacter
+            height={140}
+            state={avatarState}
             alt="Lumi, científica animada con bata de laboratorio y una tablet con el logo de un átomo, sonriendo y saludando"
-            className="w-32 sm:w-36 h-auto shrink-0"
+            className="shrink-0"
           />
-          <div className="flex items-center gap-3">
-            <LumiAvatar size={40} state={avatarState} decorative />
-            <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
-              {step === "story" ? "Conoce a Lumi" : "Activemos tu voz"}
-            </h2>
-          </div>
+          <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
+            {step === "story" ? "Conoce a Lumi" : "Activemos tu voz"}
+          </h2>
         </div>
 
         {step === "story" ? (

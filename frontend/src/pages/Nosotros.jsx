@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import lumiPersonaje from "../assets/lumi-personaje.png";
-import LumiAvatar from "../components/LumiAvatar";
+import LumiCharacter from "../components/LumiCharacter";
 import useLumi from "../hooks/useLumi";
 
 const PILLARS = [
@@ -24,19 +23,21 @@ const PILLARS = [
 
 export default function Nosotros() {
   const { speak, stopSpeak, isSpeaking } = useLumi();
+  const heroState = isSpeaking ? "talking" : "happy";
 
   const bioText =
-    "Lumilab nació de la experiencia de Paola Andrea Albornoz, docente de Física con diez años de trayectoria en el aula y Magíster en Educación con enfoque inclusivo. Es una herramienta pensada para buscar la inclusión desde el inicio, no como una adaptación de último momento.";
+    "Lumilab nació de la experiencia de Andrea Albornoz, docente de Física con diez años de trayectoria en el aula y Magíster en Educación con enfoque inclusivo. Es una herramienta pensada para buscar la inclusión desde el inicio, no como una adaptación de último momento.";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* HERO */}
         <section className="flex flex-col sm:flex-row items-center gap-6 mb-10 text-center sm:text-left">
-          <img
-            src={lumiPersonaje}
+          <LumiCharacter
+            height={200}
+            state={heroState}
             alt="Lumi, científica animada con bata de laboratorio y una tablet con el logo de un átomo"
-            className="w-40 sm:w-48 h-auto shrink-0"
+            className="shrink-0"
           />
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-violet-800 mb-2">
@@ -77,15 +78,15 @@ export default function Nosotros() {
         {/* CREADORA */}
         <section className="bg-white rounded-3xl shadow p-6 mb-8">
           <div className="flex items-center gap-3 mb-3">
-            <LumiAvatar size={48} state={isSpeaking ? "talking" : "idle"} decorative />
+            <LumiCharacter height={56} state={isSpeaking ? "talking" : "idle"} decorative />
             <h2 className="text-xl font-bold text-purple-700">Quién está detrás de Lumilab</h2>
           </div>
           <p className="text-gray-700 mb-2">
-            <span className="font-semibold text-gray-900">Paola Andrea Albornoz</span> — Docente de
+            <span className="font-semibold text-gray-900">Andrea Albornoz</span> — Docente de
             Física, Magíster en Educación con enfoque inclusivo.
           </p>
           <p className="text-gray-700 mb-4">
-            Con diez años de experiencia en educación, Paola creó Lumilab como una herramienta que
+            Con diez años de experiencia en educación, Andrea creó Lumilab como una herramienta que
             busca la inclusión desde el inicio: un espacio donde la física se puede ver, escuchar y
             sentir, para que ningún estudiante quede afuera de la ciencia por no poder verla.
           </p>

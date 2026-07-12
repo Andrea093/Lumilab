@@ -1,5 +1,5 @@
 import React from "react";
-import LumiAvatar from "./LumiAvatar";
+import LumiCharacter from "./LumiCharacter";
 import useLumi from "../hooks/useLumi";
 
 // Guía de Lumi para los módulos: avatar + explicación por voz, con estado visual reactivo.
@@ -10,7 +10,7 @@ export default function LumiGuide({ text, greeting }) {
 
   return (
     <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-md border border-purple-200">
-      <LumiAvatar size={72} state={isSpeaking ? "talking" : "idle"} />
+      <LumiCharacter height={96} state={isSpeaking ? "talking" : "idle"} />
 
       <div className="flex-1">
         <div className="font-semibold text-purple-800">Lumi — tu guía</div>

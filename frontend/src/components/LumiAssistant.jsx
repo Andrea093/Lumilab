@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import LumiAvatar from "./LumiAvatar";
+import LumiCharacter from "./LumiCharacter";
 import useLumi from "../hooks/useLumi";
 
 export default function LumiAssistant() {
@@ -70,7 +70,7 @@ export default function LumiAssistant() {
           className="w-80 max-w-[calc(100vw-3rem)] bg-white rounded-2xl shadow-xl p-4 mb-3"
         >
           <div className="flex items-center gap-2 mb-2">
-            <LumiAvatar size={36} state={avatarState} decorative />
+            <LumiCharacter height={48} state={avatarState} decorative />
             <span className="font-semibold text-purple-700">
               Lumi · asistente
             </span>
@@ -129,9 +129,9 @@ export default function LumiAssistant() {
         aria-expanded={open}
         aria-controls="lumi-assistant-panel"
         aria-label={open ? "Cerrar asistente Lumi" : "Abrir asistente Lumi"}
-        className="bg-white rounded-full shadow-lg border border-purple-300 p-1"
+        className="bg-white rounded-2xl shadow-lg border border-purple-300 px-2 pt-2 pb-1"
       >
-        <LumiAvatar size={56} state={avatarState} decorative />
+        <LumiCharacter height={68} state={avatarState} decorative />
       </button>
     </div>
   );
