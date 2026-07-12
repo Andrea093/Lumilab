@@ -68,38 +68,75 @@ body {
   50% { opacity: 0.6; transform: scale(1.15); }
 }
 
-/* Gestos de Lumi (personaje ilustrado), estilo compañera de videojuego: presencia
-   notoria pero con movimiento suave y predecible (solo vertical), no giros ni
-   bandazos de lado a lado que resulten mareantes de ver. */
+/* Gestos de Lumi (personaje ilustrado), estilo compañera de videojuego real: sin
+   giros ni bandazos de lado a lado (eso se ve como un salto mareante). En su lugar,
+   squash & stretch sutil (se comprime/alarga levemente, como al respirar o dar
+   énfasis al hablar) con transform-origin en los pies, y una sombra en el piso que
+   se encoge cuando "sube" y crece cuando "baja" — la señal clásica de peso real que
+   usan las mascotas de videojuego con una sola pose dibujada. */
 @keyframes lumi-char-idle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
+  50% { transform: translateY(-6px) scaleY(1.02) scaleX(0.985); }
 }
 .lumi-char-idle { animation: lumi-char-idle 2.8s ease-in-out infinite; }
 
-@keyframes lumi-char-talking {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-5px) scale(1.03); }
+@keyframes lumi-shadow-idle {
+  0%, 100% { transform: scaleX(1); opacity: 0.28; }
+  50% { transform: scaleX(0.85); opacity: 0.16; }
 }
-.lumi-char-talking { animation: lumi-char-talking 0.6s ease-in-out infinite; }
+.lumi-shadow-idle { animation: lumi-shadow-idle 2.8s ease-in-out infinite; }
+
+@keyframes lumi-char-talking {
+  0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
+  50% { transform: translateY(-7px) scaleY(1.05) scaleX(0.97); }
+}
+.lumi-char-talking { animation: lumi-char-talking 0.55s ease-in-out infinite; }
+
+@keyframes lumi-shadow-talking {
+  0%, 100% { transform: scaleX(1); opacity: 0.28; }
+  50% { transform: scaleX(0.78); opacity: 0.14; }
+}
+.lumi-shadow-talking { animation: lumi-shadow-talking 0.55s ease-in-out infinite; }
 
 @keyframes lumi-char-listening {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-4px) scaleY(1.015); }
 }
 .lumi-char-listening { animation: lumi-char-listening 1.6s ease-in-out infinite; }
 
-@keyframes lumi-char-happy {
-  0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
+@keyframes lumi-shadow-listening {
+  0%, 100% { transform: scaleX(1); opacity: 0.28; }
+  50% { transform: scaleX(0.9); opacity: 0.2; }
 }
-.lumi-char-happy { animation: lumi-char-happy 0.8s ease-in-out infinite; }
+.lumi-shadow-listening { animation: lumi-shadow-listening 1.6s ease-in-out infinite; }
+
+@keyframes lumi-char-happy {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  15% { transform: translateY(2px) scaleY(0.92); }
+  45% { transform: translateY(-11px) scaleY(1.08); }
+  70% { transform: translateY(0) scaleY(1); }
+}
+.lumi-char-happy { animation: lumi-char-happy 0.9s ease-in-out infinite; }
+
+@keyframes lumi-shadow-happy {
+  0%, 100% { transform: scaleX(1); opacity: 0.28; }
+  15% { transform: scaleX(1.1); opacity: 0.32; }
+  45% { transform: scaleX(0.7); opacity: 0.12; }
+  70% { transform: scaleX(1); opacity: 0.28; }
+}
+.lumi-shadow-happy { animation: lumi-shadow-happy 0.9s ease-in-out infinite; }
 
 @keyframes lumi-char-thinking {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-4px) scaleY(1.015); }
 }
 .lumi-char-thinking { animation: lumi-char-thinking 2.4s ease-in-out infinite; }
+
+@keyframes lumi-shadow-thinking {
+  0%, 100% { transform: scaleX(1); opacity: 0.28; }
+  50% { transform: scaleX(0.9); opacity: 0.2; }
+}
+.lumi-shadow-thinking { animation: lumi-shadow-thinking 2.4s ease-in-out infinite; }
 
 /* Card glass */
 .card-glass {
