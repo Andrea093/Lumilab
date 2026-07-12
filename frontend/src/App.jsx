@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import { useAuth } from "./context/AuthContext";
 import OnboardingStory, { hasSeenOnboarding } from "./components/OnboardingStory";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -37,10 +38,18 @@ export default function App() {
 
       <main id="main-content">
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
-          <Route path="/laboratorio" element={<Laboratorio />} />
           <Route path="/nosotros" element={<Nosotros />} />
+          <Route
+            path="/laboratorio"
+            element={
+              <ProtectedRoute>
+                <Laboratorio />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

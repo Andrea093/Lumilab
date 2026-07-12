@@ -31,7 +31,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
 
         {/* LOGO */}
-        <Link to="/dashboard" onClick={closeAll} className="flex items-center gap-3 min-w-0">
+        <Link to={isAuthenticated ? "/dashboard" : "/"} onClick={closeAll} className="flex items-center gap-3 min-w-0">
           <img
             src={logoLumilab}
             alt="Lumilab"
@@ -110,7 +110,7 @@ export default function Navbar() {
                 </button>
               ) : (
                 <div className="flex flex-col sm:items-end gap-2">
-                  <Link onClick={closeAll} to="/" className="font-semibold text-gray-800 hover:text-violet-600">
+                  <Link onClick={closeAll} to="/login" className="font-semibold text-gray-800 hover:text-violet-600">
                     Iniciar sesión
                   </Link>
                   <Link
