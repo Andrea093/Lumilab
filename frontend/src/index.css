@@ -68,37 +68,36 @@ body {
   50% { opacity: 0.6; transform: scale(1.15); }
 }
 
-/* Gestos de Lumi (personaje ilustrado), estilo compañera de videojuego: notorios,
-   no sutiles, para que se sienta viva guiando la experiencia. */
+/* Gestos de Lumi (personaje ilustrado), estilo compañera de videojuego: presencia
+   notoria pero con movimiento suave y predecible (solo vertical), no giros ni
+   bandazos de lado a lado que resulten mareantes de ver. */
 @keyframes lumi-char-idle {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(-1deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
-.lumi-char-idle { animation: lumi-char-idle 2.4s ease-in-out infinite; }
+.lumi-char-idle { animation: lumi-char-idle 2.8s ease-in-out infinite; }
 
 @keyframes lumi-char-talking {
-  0%, 100% { transform: rotate(0deg) scale(1) translateY(0); }
-  25% { transform: rotate(-4deg) scale(1.06) translateY(-3px); }
-  75% { transform: rotate(4deg) scale(1.06) translateY(-3px); }
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.03); }
 }
-.lumi-char-talking { animation: lumi-char-talking 0.35s ease-in-out infinite; }
+.lumi-char-talking { animation: lumi-char-talking 0.6s ease-in-out infinite; }
 
 @keyframes lumi-char-listening {
-  0%, 100% { transform: rotate(-2deg); }
-  50% { transform: rotate(2deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 .lumi-char-listening { animation: lumi-char-listening 1.6s ease-in-out infinite; }
 
 @keyframes lumi-char-happy {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  30% { transform: translateY(-8px) rotate(-3deg); }
-  60% { transform: translateY(0) rotate(3deg); }
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
 }
-.lumi-char-happy { animation: lumi-char-happy 0.9s ease-in-out infinite; }
+.lumi-char-happy { animation: lumi-char-happy 0.8s ease-in-out infinite; }
 
 @keyframes lumi-char-thinking {
-  0%, 100% { transform: rotate(-1.5deg); }
-  50% { transform: rotate(1.5deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 .lumi-char-thinking { animation: lumi-char-thinking 2.4s ease-in-out infinite; }
 

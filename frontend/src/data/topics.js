@@ -11,6 +11,51 @@ export const GRADE_BANDS = [
   { id: "10-11", label: "10° y 11°" },
 ];
 
+// Identidad visual compartida por bloque de grado (Temas.jsx y TopicLesson.jsx):
+// mismo color e ícono en la lista y dentro de cada lección, para que se sienta
+// una sola experiencia y no dos diseños distintos.
+export const GRADE_BAND_META = {
+  "6-7": {
+    title: "Primeros pasos",
+    subtitle: "Ideas intuitivas antes de las fórmulas",
+    icon: "🌱",
+    header: "from-emerald-400 to-emerald-500",
+    top: "bg-emerald-400",
+    chip: "bg-emerald-100 text-emerald-700",
+  },
+  "8-9": {
+    title: "Construyendo las bases",
+    subtitle: "Leyes de Newton, energía y primeras fórmulas",
+    icon: "⚙️",
+    header: "from-amber-400 to-orange-500",
+    top: "bg-amber-400",
+    chip: "bg-amber-100 text-amber-700",
+  },
+  "10-11": {
+    title: "Física en profundidad",
+    subtitle: "Cinemática, gravitación, electromagnetismo y óptica",
+    icon: "🚀",
+    header: "from-violet-500 to-pink-500",
+    top: "bg-violet-500",
+    chip: "bg-violet-100 text-violet-700",
+  },
+};
+
+export const THEME_ICONS = {
+  mediciones: "📏",
+  materia: "🧪",
+  fuerzas: "➡️",
+  energia: "⚡",
+  ondas: "🎵",
+  electricidad: "🔌",
+  fluidos: "💧",
+  cinematica: "🚗",
+  dinamica: "⚙️",
+  gravitacion: "🌍",
+  optica: "🔍",
+  termodinamica: "🌡️",
+};
+
 export const THEMES = {
   mediciones: "Mediciones y magnitudes",
   materia: "Materia y energía",

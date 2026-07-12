@@ -1,53 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { GRADE_BANDS, getTopicsByGradeBand } from "../data/topics";
+import { GRADE_BANDS, GRADE_BAND_META, THEME_ICONS, getTopicsByGradeBand } from "../data/topics";
 import LumiGuide from "../components/LumiGuide";
-
-const THEME_ICONS = {
-  mediciones: "📏",
-  materia: "🧪",
-  fuerzas: "➡️",
-  energia: "⚡",
-  ondas: "🎵",
-  electricidad: "🔌",
-  fluidos: "💧",
-  cinematica: "🚗",
-  dinamica: "⚙️",
-  gravitacion: "🌍",
-  optica: "🔍",
-  termodinamica: "🌡️",
-};
 
 const STATUS_BADGE = {
   available: { label: "🎮 Simulador interactivo", className: "text-emerald-700 bg-emerald-100" },
   "lesson-only": { label: "📖 Lección", className: "text-indigo-700 bg-indigo-100" },
   "coming-soon": { label: "Próximamente", className: "text-gray-600 bg-gray-100" },
-};
-
-// Un bloque visual distinto por grado: color, título e ícono propios, para que
-// un estudiante pueda ubicarse de un vistazo en vez de ver 20 tarjetas iguales.
-const GRADE_BAND_META = {
-  "6-7": {
-    title: "Primeros pasos",
-    subtitle: "Ideas intuitivas antes de las fórmulas",
-    icon: "🌱",
-    header: "from-emerald-400 to-emerald-500",
-    top: "bg-emerald-400",
-  },
-  "8-9": {
-    title: "Construyendo las bases",
-    subtitle: "Leyes de Newton, energía y primeras fórmulas",
-    icon: "⚙️",
-    header: "from-amber-400 to-orange-500",
-    top: "bg-amber-400",
-  },
-  "10-11": {
-    title: "Física en profundidad",
-    subtitle: "Cinemática, gravitación, electromagnetismo y óptica",
-    icon: "🚀",
-    header: "from-violet-500 to-pink-500",
-    top: "bg-violet-500",
-  },
 };
 
 function TopicCard({ topic, accentClass }) {

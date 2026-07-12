@@ -1,22 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { topics, THEMES } from "../data/topics";
+import { topics, THEMES, THEME_ICONS } from "../data/topics";
 import LumiGuide from "../components/LumiGuide";
-
-const THEME_ICONS = {
-  mediciones: "📏",
-  materia: "🧪",
-  fuerzas: "➡️",
-  energia: "⚡",
-  ondas: "🎵",
-  electricidad: "🔌",
-  fluidos: "💧",
-  cinematica: "🚗",
-  dinamica: "⚙️",
-  gravitacion: "🌍",
-  optica: "🔍",
-  termodinamica: "🌡️",
-};
 
 const SIMULATORS = topics.filter((t) => t.status === "available");
 const AVAILABLE_THEME_IDS = [...new Set(SIMULATORS.map((t) => t.theme))];
