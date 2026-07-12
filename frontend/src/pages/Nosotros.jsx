@@ -44,9 +44,9 @@ export default function Nosotros() {
               Nosotros
             </h1>
             <p className="text-lg text-gray-700">
-              Lumilab es un laboratorio de física multisensorial: pensado desde el inicio para que
-              un estudiante ciego o con baja visión pueda explorar, experimentar y aprender igual
-              que cualquier otro compañero de clase.
+              Lumilab es un laboratorio de física multisensorial: física accesible para todos,
+              pensada desde el inicio con la inclusión como punto de partida, no como un ajuste de
+              último momento.
             </p>
           </div>
         </section>
@@ -87,8 +87,9 @@ export default function Nosotros() {
           </p>
           <p className="text-gray-700 mb-4">
             Con diez años de experiencia en educación, Andrea creó Lumilab como una herramienta que
-            busca la inclusión desde el inicio: un espacio donde la física se puede ver, escuchar y
-            sentir, para que ningún estudiante quede afuera de la ciencia por no poder verla.
+            busca la inclusión real de las ciencias desde el inicio: un espacio donde la física se
+            puede ver, escuchar y sentir, para que la forma en que cada estudiante aprende mejor
+            nunca sea una barrera para acceder a ella.
           </p>
           <div className="flex gap-2">
             <button

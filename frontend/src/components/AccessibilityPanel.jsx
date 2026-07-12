@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAccessibility } from "../context/AccessibilityContext";
 
-export default function AccessibilityPanel() {
-  const [open, setOpen] = useState(false);
-  const triggerRef = useRef(null);
-  const dialogRef = useRef(null);
+function AccessibilityControls() {
   const {
     canIncreaseFontScale,
     canDecreaseFontScale,
@@ -18,13 +15,67 @@ export default function AccessibilityPanel() {
     toggleAudioDescriptions,
   } = useAccessibility();
 
+  return (
+    <div className="space-y-4 text-sm">
+      <div>
+        <span className="block font-medium text-gray-700 mb-1">Tamaño del texto</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={decreaseFontScale}
+            disabled={!canDecreaseFontScale}
+            aria-label="Disminuir tamaño del texto"
+            className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40"
+          >
+            A−
+          </button>
+          <button
+            onClick={increaseFontScale}
+            disabled={!canIncreaseFontScale}
+            aria-label="Aumentar tamaño del texto"
+            className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40"
+          >
+            A+
+          </button>
+        </div>
+      </div>
+
+      <label className="flex items-center justify-between cursor-pointer gap-3">
+        <span className="font-medium text-gray-700">Alto contraste</span>
+        <input type="checkbox" checked={highContrast} onChange={toggleHighContrast} className="w-5 h-5" />
+      </label>
+
+      <label className="flex items-center justify-between cursor-pointer gap-3">
+        <span className="font-medium text-gray-700">Reducir movimiento</span>
+        <input type="checkbox" checked={reduceMotion} onChange={toggleReduceMotion} className="w-5 h-5" />
+      </label>
+
+      <label className="flex items-center justify-between cursor-pointer gap-3">
+        <span className="font-medium text-gray-700">Descripciones de audio siempre activas</span>
+        <input
+          type="checkbox"
+          checked={audioDescriptionsAlwaysOn}
+          onChange={toggleAudioDescriptions}
+          className="w-5 h-5"
+        />
+      </label>
+    </div>
+  );
+}
+
+// inline=true: se usa embebido dentro de un menu ya abierto (sin boton disparador propio
+// ni superposicion flotante, para no anidar un desplegable dentro de otro).
+export default function AccessibilityPanel({ inline = false }) {
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef(null);
+  const dialogRef = useRef(null);
+
   const close = () => {
     setOpen(false);
     triggerRef.current?.focus();
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (inline || !open) return;
 
     const dialog = dialogRef.current;
     const focusable = dialog?.querySelectorAll(
@@ -53,7 +104,16 @@ export default function AccessibilityPanel() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open]);
+  }, [inline, open]);
+
+  if (inline) {
+    return (
+      <div>
+        <h2 className="font-bold text-violet-800 mb-3">Accesibilidad</h2>
+        <AccessibilityControls />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -71,11 +131,7 @@ export default function AccessibilityPanel() {
 
       {open && (
         <>
-          <div
-            className="fixed inset-0 bg-black/30 z-40"
-            onClick={close}
-            aria-hidden="true"
-          />
+          <div className="fixed inset-0 bg-black/30 z-40" onClick={close} aria-hidden="true" />
           <div
             ref={dialogRef}
             role="dialog"
@@ -96,61 +152,7 @@ export default function AccessibilityPanel() {
               </button>
             </div>
 
-            <div className="space-y-4 text-sm">
-              <div>
-                <span className="block font-medium text-gray-700 mb-1">Tamaño del texto</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={decreaseFontScale}
-                    disabled={!canDecreaseFontScale}
-                    aria-label="Disminuir tamaño del texto"
-                    className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40"
-                  >
-                    A−
-                  </button>
-                  <button
-                    onClick={increaseFontScale}
-                    disabled={!canIncreaseFontScale}
-                    aria-label="Aumentar tamaño del texto"
-                    className="px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40"
-                  >
-                    A+
-                  </button>
-                </div>
-              </div>
-
-              <label className="flex items-center justify-between cursor-pointer">
-                <span className="font-medium text-gray-700">Alto contraste</span>
-                <input
-                  type="checkbox"
-                  checked={highContrast}
-                  onChange={toggleHighContrast}
-                  className="w-5 h-5"
-                />
-              </label>
-
-              <label className="flex items-center justify-between cursor-pointer">
-                <span className="font-medium text-gray-700">Reducir movimiento</span>
-                <input
-                  type="checkbox"
-                  checked={reduceMotion}
-                  onChange={toggleReduceMotion}
-                  className="w-5 h-5"
-                />
-              </label>
-
-              <label className="flex items-center justify-between cursor-pointer">
-                <span className="font-medium text-gray-700">
-                  Descripciones de audio siempre activas
-                </span>
-                <input
-                  type="checkbox"
-                  checked={audioDescriptionsAlwaysOn}
-                  onChange={toggleAudioDescriptions}
-                  className="w-5 h-5"
-                />
-              </label>
-            </div>
+            <AccessibilityControls />
           </div>
         </>
       )}

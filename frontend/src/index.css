@@ -68,19 +68,20 @@ body {
   50% { opacity: 0.6; transform: scale(1.15); }
 }
 
-/* Gestos de Lumi (personaje ilustrado) */
+/* Gestos de Lumi (personaje ilustrado), estilo compañera de videojuego: notorios,
+   no sutiles, para que se sienta viva guiando la experiencia. */
 @keyframes lumi-char-idle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-1deg); }
 }
-.lumi-char-idle { animation: lumi-char-idle 3s ease-in-out infinite; }
+.lumi-char-idle { animation: lumi-char-idle 2.4s ease-in-out infinite; }
 
 @keyframes lumi-char-talking {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-1.5deg) scale(1.02); }
-  75% { transform: rotate(1.5deg) scale(1.02); }
+  0%, 100% { transform: rotate(0deg) scale(1) translateY(0); }
+  25% { transform: rotate(-4deg) scale(1.06) translateY(-3px); }
+  75% { transform: rotate(4deg) scale(1.06) translateY(-3px); }
 }
-.lumi-char-talking { animation: lumi-char-talking 0.5s ease-in-out infinite; }
+.lumi-char-talking { animation: lumi-char-talking 0.35s ease-in-out infinite; }
 
 @keyframes lumi-char-listening {
   0%, 100% { transform: rotate(-2deg); }
