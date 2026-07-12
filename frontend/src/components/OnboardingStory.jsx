@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import LumiCharacter from "./LumiCharacter";
 import useLumi from "../hooks/useLumi";
 import { normalizeAnswer } from "../utils/answer";
-import lumiVideo from "../assets/lumi-video.mp4";
-import lumiPersonaje from "../assets/lumi-personaje.png";
 
 const SEEN_KEY = "lumilab_onboarding_seen";
 const MIC_KEY = "lumilab_mic_primed";
@@ -38,7 +36,11 @@ export default function OnboardingStory({ onFinish }) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
-    return () => stopSpeak();
+    const t = setTimeout(() => speak(STORY.join(" ")), 300);
+    return () => {
+      clearTimeout(t);
+      stopSpeak();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -165,46 +167,35 @@ export default function OnboardingStory({ onFinish }) {
         aria-labelledby="onboarding-title"
         className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 text-left max-h-[92vh] overflow-y-auto"
       >
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+          <LumiCharacter
+            height={140}
+            state={avatarState}
+            alt="Lumi, científica animada con bata de laboratorio y una tablet con el logo de un átomo, sonriendo y saludando"
+            className="shrink-0"
+          />
+          <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
+            {step === "story" ? "Conoce a Lumi" : "Activemos tu voz"}
+          </h2>
+        </div>
+
         {step === "story" ? (
           <>
-            <div className="flex items-center gap-3 mb-4">
-              <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
-                Conoce a Lumi
-              </h2>
+            <div className="space-y-3 text-gray-700 text-sm">
+              {STORY.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
             </div>
-
-            <video
-              src={lumiVideo}
-              poster={lumiPersonaje}
-              controls
-              className="w-full rounded-2xl bg-black mb-4"
-            >
-              Tu navegador no admite reproducción de video. Lumi dice: {STORY[0]}
-            </video>
-
-            <details className="text-gray-700 text-sm">
-              <summary className="cursor-pointer font-semibold text-violet-700">
-                Leer/escuchar la historia completa
-              </summary>
-              <div className="space-y-3 mt-3">
-                {STORY.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <button
-                  onClick={() => speak(STORY.join(" "))}
-                  className="px-3 py-1.5 rounded-lg bg-purple-600 text-white text-sm font-semibold"
-                >
-                  Escuchar
-                </button>
-                <button onClick={stopSpeak} className="px-3 py-1.5 rounded-lg bg-gray-200 text-gray-800 text-sm font-semibold">
-                  Parar
-                </button>
-              </div>
-            </details>
-
             <div className="flex flex-wrap gap-2 mt-5">
+              <button
+                onClick={() => speak(STORY.join(" "))}
+                className="px-4 py-2 rounded-xl bg-purple-600 text-white font-semibold"
+              >
+                Escuchar de nuevo
+              </button>
+              <button onClick={stopSpeak} className="px-4 py-2 rounded-xl bg-gray-200 text-gray-800">
+                Parar
+              </button>
               <button
                 onClick={listenOnStory}
                 className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold"
@@ -221,12 +212,6 @@ export default function OnboardingStory({ onFinish }) {
           </>
         ) : (
           <>
-            <div className="flex items-center gap-3 mb-4">
-              <LumiCharacter height={100} state={avatarState} decorative />
-              <h2 id="onboarding-title" className="text-xl font-bold text-violet-800">
-                Activemos tu voz
-              </h2>
-            </div>
             <p className="text-gray-700 text-sm mb-4">
               Lumilab puede escuchar tus respuestas por voz en cada simulación. Actívalo una sola
               vez: tu navegador te pedirá el permiso y, después de eso, no volverá a preguntarte en

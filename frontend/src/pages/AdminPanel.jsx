@@ -102,7 +102,7 @@ function CreateTeacherForm({ token, onCreated }) {
   );
 }
 
-function UserRow({ user, token, onChanged }) {
+function UserRow({ user, token, onChanged, currentUserId }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     fullName: user.full_name,
@@ -155,7 +155,7 @@ function UserRow({ user, token, onChanged }) {
     }
     setBusy(true);
     try {
-      await api.deleteTeacher(token, user.id);
+      await api.deleteUser(token, user.id);
       onChanged();
     } catch (err) {
       setError(err.message);
@@ -187,7 +187,7 @@ function UserRow({ user, token, onChanged }) {
           >
             {editing ? "Cerrar" : "Editar / contraseña"}
           </button>
-          {user.role === "teacher" && (
+          {user.id !== currentUserId && (
             <button
               onClick={handleDelete}
               disabled={busy}
@@ -277,7 +277,7 @@ function UserRow({ user, token, onChanged }) {
 }
 
 export default function AdminPanel() {
-  const { token } = useAuth();
+  const { token, user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -300,13 +300,13 @@ export default function AdminPanel() {
         <div className="mb-6">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-violet-800 mb-2">Administración</h1>
           <p className="text-gray-600">
-            Restablece contraseñas, edita datos de estudiantes y administra cuentas docentes.
+            Restablece contraseñas, edita datos de cualquier usuario, y crea o elimina cuentas.
           </p>
         </div>
 
         <div className="mb-6">
           <LumiGuide
-            greeting="Hola, soy Lumi. Aquí puedes restablecer contraseñas, editar datos de estudiantes y crear o eliminar cuentas docentes."
+            greeting="Hola, soy Lumi. Aquí puedes restablecer contraseñas, editar datos de cualquier usuario, y crear o eliminar cuentas."
             text="Este es el panel de administración de Lumilab."
           />
         </div>
@@ -322,7 +322,7 @@ export default function AdminPanel() {
 
         <div className="space-y-3">
           {users.map((u) => (
-            <UserRow key={u.id} user={u} token={token} onChanged={load} />
+            <UserRow key={u.id} user={u} token={token} onChanged={load} currentUserId={currentUser?.id} />
           ))}
         </div>
       </div>

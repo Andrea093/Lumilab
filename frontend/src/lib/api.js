@@ -35,5 +35,5 @@ export const api = {
     request(`/admin/users/${id}`, { method: "PUT", body: payload, token }),
   resetUserPassword: (token, id, newPassword) =>
     request(`/admin/users/${id}/password`, { method: "PUT", body: { newPassword }, token }),
-  deleteTeacher: (token, id) => request(`/admin/users/${id}`, { method: "DELETE", token }),
+  deleteUser: (token, id) => request(`/admin/users/${id}`, { method: "DELETE", token }),
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import { useAccessibility } from "../context/AccessibilityContext";
 import lumiPersonaje from "../assets/lumi-personaje.png";
+import lumiVideo from "../assets/lumi-video.mp4";
 
 const STATE_LABELS = {
   idle: "Lumi está en espera",
@@ -26,15 +27,17 @@ const SHADOW_CLASS = {
   thinking: "lumi-shadow-idle",
 };
 
-// Lumi, la científica ilustrada: reemplaza el ícono SVG en todos los lugares donde
-// acompaña al estudiante. Un solo movimiento simple y siempre igual: en reposo
-// respira suavemente, y en cuanto habla (incluye escuchar/contenta, que también
-// hablan al reaccionar) hace el mismo gesto de "hablar" cada vez, sin variaciones
-// ni aleatoriedad — fácil de reconocer y predecible.
+// Lumi, la científica: cuando habla (estado "talking") se muestra el video real
+// generado con IA —silenciado y en loop— para que se vea moviendo la boca de
+// verdad; el audio que se escucha sigue siendo la explicación dinámica por voz
+// (useLumi/speak), no el sonido fijo del video, porque lo que Lumi dice cambia
+// en cada pantalla. En el resto de los estados se usa la foto fija animada por
+// CSS (respirar, gesto al reaccionar), ya que ahí no está hablando.
 export default function LumiCharacter({ height = 96, state = "idle", decorative = false, alt, className = "" }) {
   const { reduceMotion } = useAccessibility();
   const animClass = reduceMotion ? "" : STATE_CLASS[state] || STATE_CLASS.idle;
   const shadowClass = reduceMotion ? "" : SHADOW_CLASS[state] || SHADOW_CLASS.idle;
+  const showVideo = state === "talking" && !reduceMotion;
 
   return (
     <span
@@ -56,13 +59,25 @@ export default function LumiCharacter({ height = 96, state = "idle", decorative 
         className={`absolute left-1/2 rounded-full bg-black/25 blur-[2px] ${shadowClass}`}
         style={{ bottom: "-4%", width: "46%", height: "8%", marginLeft: "-23%" }}
       />
-      <img
-        src={lumiPersonaje}
-        alt=""
-        aria-hidden="true"
-        className={animClass}
-        style={{ height: "100%", width: "auto", display: "block", transformOrigin: "bottom center" }}
-      />
+      {showVideo ? (
+        <video
+          src={lumiVideo}
+          muted
+          loop
+          autoPlay
+          playsInline
+          aria-hidden="true"
+          style={{ height: "100%", width: "auto", display: "block", borderRadius: "8%" }}
+        />
+      ) : (
+        <img
+          src={lumiPersonaje}
+          alt=""
+          aria-hidden="true"
+          className={animClass}
+          style={{ height: "100%", width: "auto", display: "block", transformOrigin: "bottom center" }}
+        />
+      )}
     </span>
   );
 }

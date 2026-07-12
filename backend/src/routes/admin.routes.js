@@ -88,8 +88,8 @@ adminRouter.delete("/users/:id", async (req, res, next) => {
     if (!target) {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
-    if (target.role !== "teacher") {
-      return res.status(400).json({ error: "Solo se pueden eliminar cuentas de docente desde aqui." });
+    if (Number(req.params.id) === req.user.id) {
+      return res.status(400).json({ error: "No puedes eliminar tu propia cuenta." });
     }
     await deleteUser(req.params.id);
     res.json({ ok: true });
