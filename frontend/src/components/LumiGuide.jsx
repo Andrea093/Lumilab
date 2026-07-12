@@ -1,13 +1,27 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import LumiCharacter from "./LumiCharacter";
 import useLumi from "../hooks/useLumi";
+import { useAccessibility } from "../context/AccessibilityContext";
 
 // Guía de Lumi para los módulos: personaje grande tipo compañera de videojuego, con
-// una burbuja de diálogo que "dice" la explicación y reacciona mientras habla.
+// una burbuja de diálogo que "dice" la explicación. Si "descripciones de audio siempre
+// activas" está encendido (por defecto), habla sola al llegar, en vez de esperar a que
+// alguien encuentre y toque el botón: eso es lo que la hace una guía de verdad y no solo
+// una animación decorativa.
 export default function LumiGuide({ text, greeting }) {
   const { speak, stopSpeak, isSpeaking } = useLumi();
+  const { audioDescriptionsAlwaysOn } = useAccessibility();
+  const spokenRef = useRef(false);
 
   const handleExplain = () => speak(greeting || text);
+
+  useEffect(() => {
+    if (!audioDescriptionsAlwaysOn || spokenRef.current) return;
+    spokenRef.current = true;
+    const t = setTimeout(handleExplain, 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioDescriptionsAlwaysOn]);
 
   return (
     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 p-4 bg-white rounded-xl shadow-md border border-purple-200">

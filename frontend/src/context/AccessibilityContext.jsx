@@ -15,7 +15,9 @@ function loadInitialState() {
     fontScaleIndex: 0,
     highContrast: false,
     reduceMotion: prefersReducedMotion,
-    audioDescriptionsAlwaysOn: false,
+    // Activo por defecto: Lumi debe guiar hablando al llegar a cada pantalla, no
+    // esperar a que alguien encuentre y toque el botón "Escuchar explicación".
+    audioDescriptionsAlwaysOn: true,
   };
 
   try {
