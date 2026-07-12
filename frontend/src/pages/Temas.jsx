@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { GRADE_BANDS, GRADE_BAND_META, THEME_ICONS, getTopicsByGradeBand } from "../data/topics";
 import LumiGuide from "../components/LumiGuide";
+import TopicIllustration from "../components/TopicIllustration";
 
 const STATUS_BADGE = {
   available: { label: "🎮 Simulador interactivo", className: "text-emerald-700 bg-emerald-100" },
@@ -18,6 +19,7 @@ function TopicCard({ topic, accentClass }) {
   const content = (
     <>
       <span className={`block h-1.5 rounded-full mb-4 ${accentClass}`} aria-hidden="true" />
+      <TopicIllustration topicId={topic.id} className="mb-3" />
       <div className="flex items-center justify-between mb-3">
         <span className="text-4xl" aria-hidden="true">{icon}</span>
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${badge.className}`}>
