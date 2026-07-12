@@ -40,12 +40,55 @@ const TOPIC_KEYWORDS = [
   { id: "optica-geometrica", words: ["luz", "reflexion", "refraccion", "espejo", "lente", "optica"] },
 ];
 
+// Definiciones directas para preguntas tipo "qué es X": el resumen de cada tema está
+// escrito para describir la lección (qué vas a aprender ahí), no para responder la
+// pregunta en sí, así que usarlo solo como respuesta del chat sonaba desviado (ej.
+// "qué es la fuerza" devolvía el resumen de Leyes de Newton, que empieza hablando de
+// inercia en vez de definir la fuerza).
+const QUICK_DEFINITIONS = {
+  mru: "El MRU es un movimiento en línea recta con velocidad constante, sin acelerar ni frenar.",
+  mrua: "El MRUA es un movimiento en línea recta donde la velocidad cambia de forma constante, porque hay una aceleración constante.",
+  mcu: "El MCU es un movimiento circular donde la rapidez se mantiene constante todo el tiempo.",
+  mcua: "El MCUA es un movimiento circular donde la velocidad angular aumenta o disminuye de forma constante.",
+  "caida-libre":
+    "La caída libre es el movimiento de un objeto que cae solo por acción de la gravedad, acelerando siempre igual sin importar su masa.",
+  "ondas-sonido":
+    "Una onda es una forma de transportar energía que viaja sin mover materia de un lugar a otro; el sonido es un ejemplo de onda.",
+  "leyes-newton":
+    "La fuerza es una interacción (un empujón o un jalón) capaz de cambiar el movimiento o la forma de un objeto. Se relaciona con la masa y la aceleración mediante las leyes de Newton (F = m·a).",
+  "dinamica-newton": "La fricción es una fuerza que se opone al movimiento entre dos superficies en contacto.",
+  "trabajo-potencia":
+    "La potencia es la rapidez con la que se realiza un trabajo o se transfiere energía: el trabajo dividido entre el tiempo que tomó hacerlo.",
+  "trabajo-energia-mecanica":
+    "El trabajo, en física, es la energía transferida a un objeto cuando una fuerza logra moverlo cierta distancia.",
+  "formas-de-energia":
+    "La energía es la capacidad de producir cambios: mover, calentar, iluminar o producir sonido, y puede transformarse de una forma a otra.",
+  "calor-temperatura":
+    "El calor es la energía que se transfiere de un cuerpo más caliente a uno más frío; la temperatura mide qué tan caliente o frío está algo.",
+  "estados-materia":
+    "La materia es todo lo que ocupa espacio y tiene masa; existe principalmente en tres estados: sólido, líquido y gas.",
+  "magnitudes-unidades":
+    "Una magnitud física es algo que se puede medir, como la longitud, la masa o el tiempo, usando una unidad común.",
+  "movimiento-basico":
+    "La velocidad es qué tan rápido se mueve algo: la distancia recorrida dividida entre el tiempo que tomó recorrerla.",
+  "electricidad-estatica":
+    "La electricidad estática ocurre cuando un objeto acumula carga eléctrica, generalmente por fricción entre dos materiales.",
+  "electricidad-magnetismo":
+    "La electricidad es el flujo de cargas eléctricas; está conectada con el magnetismo, porque una corriente eléctrica genera un campo magnético.",
+  "presion-fluidos": "La presión es una fuerza aplicada sobre una superficie, dividida entre el área de esa superficie.",
+  "gravitacion-universal":
+    "La gravitación es la fuerza de atracción que existe entre todos los objetos con masa, y es lo que mantiene a los planetas en órbita.",
+  "optica-geometrica":
+    "La luz es una forma de energía que viaja en línea recta y puede reflejarse (rebotar) o refractarse (doblarse) al cambiar de medio.",
+};
+
 function buildTopicAnswer(topic) {
+  const lead = QUICK_DEFINITIONS[topic.id] || topic.summary;
   const where =
     topic.status === "available"
       ? "Tiene simulador interactivo: lo encuentras en el Laboratorio."
       : "Puedes leer la lección completa en Temas por grado.";
-  return `${topic.summary} ${where}`;
+  return `${lead} ${where}`;
 }
 
 export default function LumiAssistant() {
