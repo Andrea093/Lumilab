@@ -87,6 +87,11 @@ export default function Navbar() {
               <Link onClick={closeAll} to="/nosotros" className="block font-semibold text-gray-800 hover:text-violet-600">
                 Nosotros
               </Link>
+              {isAuthenticated && (
+                <Link onClick={closeAll} to="/premium" className="block font-semibold text-amber-600 hover:text-amber-700">
+                  ⭐ Premium
+                </Link>
+              )}
               {isTeacher && (
                 <Link onClick={closeAll} to="/panel-docente" className="block font-semibold text-violet-700">
                   Panel docente

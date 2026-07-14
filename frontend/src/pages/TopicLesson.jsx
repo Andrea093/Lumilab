@@ -2,14 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import LumiGuide from "../components/LumiGuide";
 import TopicIllustration from "../components/TopicIllustration";
+import PremiumLock from "../components/PremiumLock";
 import useLumi from "../hooks/useLumi";
 import useModuleProgress from "../hooks/useModuleProgress";
 import { getTopicBySlug, THEMES, GRADE_BAND_META } from "../data/topics";
 import { normalizeAnswer } from "../utils/answer";
+import { usePremium } from "../context/PremiumContext";
 
 export default function TopicLesson() {
   const { slug } = useParams();
   const topic = getTopicBySlug(slug);
+  const { isTopicLocked } = usePremium();
   const { speak, stopSpeak, listen } = useLumi();
   const { markStarted, markExerciseResult } = useModuleProgress(topic ? `tema-${topic.slug}` : "tema-desconocido");
   const [reflection, setReflection] = useState("");
@@ -22,6 +25,10 @@ export default function TopicLesson() {
 
   if (!topic) {
     return <Navigate to="/temas" replace />;
+  }
+
+  if (isTopicLocked(topic.id)) {
+    return <PremiumLock title={topic.title} />;
   }
 
   const band = GRADE_BAND_META[topic.gradeBand] || GRADE_BAND_META["6-7"];

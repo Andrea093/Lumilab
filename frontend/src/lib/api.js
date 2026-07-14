@@ -36,4 +36,10 @@ export const api = {
   resetUserPassword: (token, id, newPassword) =>
     request(`/admin/users/${id}/password`, { method: "PUT", body: { newPassword }, token }),
   deleteUser: (token, id) => request(`/admin/users/${id}`, { method: "DELETE", token }),
+  getPremiumStatus: (token) => request("/payments/status", { token }),
+  createPayment: (token) => request("/payments/create", { method: "POST", token }),
+  verifyPayment: (token, transactionId) => request(`/payments/verify/${transactionId}`, { token }),
+  getAdminPremiumTopics: (token) => request("/admin/premium-topics", { token }),
+  setTopicPremium: (token, topicId, premium) =>
+    request(`/admin/premium-topics/${topicId}`, { method: "PUT", body: { premium }, token }),
 };

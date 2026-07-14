@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { GRADE_BANDS, GRADE_BAND_META, THEME_ICONS, getTopicsByGradeBand } from "../data/topics";
 import LumiGuide from "../components/LumiGuide";
 import TopicIllustration from "../components/TopicIllustration";
+import { usePremium } from "../context/PremiumContext";
 
 const STATUS_BADGE = {
   available: { label: "🎮 Simulador interactivo", className: "text-emerald-700 bg-emerald-100" },
@@ -11,10 +12,12 @@ const STATUS_BADGE = {
 };
 
 function TopicCard({ topic, accentClass }) {
+  const { isTopicLocked } = usePremium();
   const icon = THEME_ICONS[topic.theme] || "📘";
   const badge = STATUS_BADGE[topic.status];
   const href = topic.status === "available" ? topic.route : `/tema/${topic.slug}`;
   const disabled = topic.status === "coming-soon";
+  const locked = isTopicLocked(topic.id);
 
   const content = (
     <>
@@ -28,9 +31,14 @@ function TopicCard({ topic, accentClass }) {
       </div>
       <h3 className="text-lg font-bold text-gray-800 mb-1">{topic.title}</h3>
       <p className="text-gray-600 text-sm">{topic.summary}</p>
+      {locked && (
+        <span className="inline-block mt-3 text-xs font-semibold px-2 py-1 rounded-full bg-amber-100 text-amber-700">
+          ⭐ Premium
+        </span>
+      )}
       {!disabled && (
         <span className="inline-block mt-4 text-violet-600 font-semibold group-hover:underline">
-          Entrar →
+          {locked ? "Ver más →" : "Entrar →"}
         </span>
       )}
     </>

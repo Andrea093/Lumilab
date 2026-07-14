@@ -25,5 +25,8 @@ export const db = createClient(clientConfig);
 // huerfanas en module_progress.
 await db.execute("PRAGMA foreign_keys = ON;");
 
-const migrationPath = resolve(import.meta.dirname, "migrations", "001_init.sql");
-await db.executeMultiple(readFileSync(migrationPath, "utf8"));
+const migrationsDir = resolve(import.meta.dirname, "migrations");
+const migrationFiles = ["001_init.sql", "002_premium.sql"];
+for (const file of migrationFiles) {
+  await db.executeMultiple(readFileSync(resolve(migrationsDir, file), "utf8"));
+}

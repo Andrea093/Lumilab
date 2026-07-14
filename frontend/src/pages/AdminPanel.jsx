@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import LumiGuide from "../components/LumiGuide";
+import { topics } from "../data/topics";
 
 const ROLE_LABELS = {
   student: "Estudiante",
@@ -99,6 +100,71 @@ function CreateTeacherForm({ token, onCreated }) {
         {loading ? "Creando…" : "Crear docente"}
       </button>
     </form>
+  );
+}
+
+function PremiumTopicsManager({ token }) {
+  const [premiumIds, setPremiumIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [busyId, setBusyId] = useState(null);
+
+  const load = () => {
+    setLoading(true);
+    api
+      .getAdminPremiumTopics(token)
+      .then((data) => setPremiumIds(data.topicIds || []))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, [token]);
+
+  const toggle = async (topicId, currentlyPremium) => {
+    setBusyId(topicId);
+    setError(null);
+    try {
+      await api.setTopicPremium(token, topicId, !currentlyPremium);
+      setPremiumIds((prev) =>
+        currentlyPremium ? prev.filter((id) => id !== topicId) : [...prev, topicId]
+      );
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow p-5 mb-8">
+      <h2 className="text-lg font-bold text-purple-700 mb-1">Contenido premium</h2>
+      <p className="text-sm text-gray-500 mb-3">
+        Marca qué temas requieren el pago de Lumilab Premium para verse.
+      </p>
+      {loading && <p className="text-gray-600 text-sm">Cargando…</p>}
+      {error && (
+        <p role="alert" className="text-sm text-red-600 mb-2">
+          {error}
+        </p>
+      )}
+      <div className="max-h-80 overflow-y-auto divide-y">
+        {topics.map((topic) => {
+          const isPremium = premiumIds.includes(topic.id);
+          return (
+            <label key={topic.id} className="flex items-center justify-between gap-3 py-2 cursor-pointer">
+              <span className="text-sm text-gray-800">{topic.title}</span>
+              <input
+                type="checkbox"
+                checked={isPremium}
+                disabled={busyId === topic.id}
+                onChange={() => toggle(topic.id, isPremium)}
+                className="w-5 h-5 shrink-0"
+              />
+            </label>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -324,6 +390,7 @@ export default function AdminPanel() {
         </div>
 
         <CreateTeacherForm token={token} onCreated={load} />
+        <PremiumTopicsManager token={token} />
 
         {loading && <p className="text-gray-600">Cargando usuarios…</p>}
         {error && (

@@ -4,6 +4,7 @@ import { requireRole } from "../middleware/requireRole.js";
 import { listAllUsers, updateUserPassword, updateUserProfile, deleteUser } from "../models/adminRepository.js";
 import { createUser, findByEmail, findByDocumentId, findById, toPublicUser } from "../models/userRepository.js";
 import { hashPassword } from "../utils/password.js";
+import { listPremiumTopicIds, setTopicPremium } from "../models/premiumRepository.js";
 
 export const adminRouter = Router();
 
@@ -92,6 +93,24 @@ adminRouter.delete("/users/:id", async (req, res, next) => {
       return res.status(400).json({ error: "No puedes eliminar tu propia cuenta." });
     }
     await deleteUser(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+adminRouter.get("/premium-topics", async (req, res, next) => {
+  try {
+    res.json({ topicIds: await listPremiumTopicIds() });
+  } catch (err) {
+    next(err);
+  }
+});
+
+adminRouter.put("/premium-topics/:topicId", async (req, res, next) => {
+  try {
+    const { premium } = req.body ?? {};
+    await setTopicPremium(req.params.topicId, !!premium);
     res.json({ ok: true });
   } catch (err) {
     next(err);
